@@ -257,6 +257,86 @@ ggplot(fake_data) +
 
 <img src="man/figures/README-coronavirus-1.png" width="100%" />
 
+## Mushroom plot
+
+A style of plot consistning of two semi-circles which can be
+sized/styled independently
+
+#### Create a simple SVG
+
+Note: Semicircles are drawn with path arcs in SVG and aren’t that
+intuitive.
+
+``` r
+semicircles_svg <- '
+<svg width="100" height="100">
+  <path d="M 0,50 a50,50 0 1,1 100,0" fill="#E79A16" />
+  <path d="M 0,50 a50,50 0 0,0 100,0" fill="#D78590" />
+</svg>
+'
+
+grob <- svgparser::read_svg(semicircles_svg)
+grid::grid.newpage()
+grid::grid.draw(grob)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+#### Introduce mappable locatins
+
+Add `{{}}` glue string locations and test it out
+
+``` r
+semicircles_svg <- '
+<svg width="100" height="100">
+  <path d="M {{50-radius_top}},50 a{{radius_top}},{{radius_top}} 0 1,1 {{2*radius_top}},0" fill="#E79A16" />
+  <path d="M {{50-radius_bot}},50 a{{radius_bot}},{{radius_bot}} 0 0,0 {{2*radius_bot}},0" fill="#D78590" />
+</svg>
+'
+
+radius_top <- 40
+radius_bot <- 30
+
+final_svg <- glue::glue(semicircles_svg, .open = "{{", .close = "}}")
+
+
+grob <- svgparser::read_svg(final_svg)
+grid::grid.newpage()
+grid::grid.draw(grob)
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
+#### Create a plot mapping 2 different quantities to the size
+
+``` r
+N <- 20
+data <- data.frame(
+  x  = runif(N),
+  y  = runif(N),
+  q1 = runif(N),
+  q2 = runif(N),
+  stringsAsFactors = FALSE
+)
+
+# options(GGSVG_DEBUG = TRUE)
+
+ggplot(data) + 
+  geom_point_svg(
+    aes(x, y, radius_top = q1, radius_bot = q2), 
+    svg = semicircles_svg, 
+    size = 10,
+    defaults = list(radius_top = 50, radius_bot = 50)) +
+  scale_svg_size('radius_top', range = c(30, 50), guide = 'none') + 
+  scale_svg_size('radius_bot', range = c(30, 50), guide = 'none') + 
+  theme_bw() +
+  labs(
+    title = "{ggsvg} Multiple continuous aesthetics"
+  )
+```
+
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+
 ## Acknowledgements
 
 -   R Core for developing and maintaining the language.
