@@ -1,0 +1,20 @@
+Package: ggsvg
+Type: Package
+Title: Geom for SVG Images
+Version: 0.1.0
+Author: mikefc
+Maintainer: mikefc <mikefc@coolbutuseless.com>
+Description: Geom for SVG Images.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports:
+    grid,
+    ggplot2,
+    scales,
+    rlang,
+    svgparser,
+    glue
+Remotes:
+    coolbutuseless/svgparser
