@@ -7,9 +7,6 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 draw_key_PointSVG <- function(data, params, size) {
 
-
-  # print(data)
-
   svg      <- data$svg[[1]]
   svg      <- glue::glue_data(data[1,], svg, .open = "{{", .close = "}}")
   svg_grob <- svgparser::read_svg(svg)
@@ -146,27 +143,36 @@ GeomPointSVG <- ggplot2::ggproto(
     debug  <- isTRUE(getOption("GGSVG_DEBUG", FALSE))
     coords <- coord$transform(data, panel_params)
 
+    is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
+
+    if (is_static_svg) {
+      svg_grob <- svgparser::read_svg(coords$svg[[1]])
+    }
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Function to create a grob for a row in coords
     # @param i row number
     # @return grob for this row
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     create_grob_for_plot <- function(i) {
-      svg         <- coords$svg[[i]]
-      svg         <- glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}")
-      if (debug) {
-        print(svg)
+
+      # if SVG changes, then need to re-parse it for every row
+      if (!is_static_svg) {
+        svg         <- coords$svg[[i]]
+        svg         <- glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}")
+        svg_grob    <- svgparser::read_svg(svg)
       }
-      svg_grob    <- svgparser::read_svg(svg)
-      new_grob    <- svg_grob
-      new_grob$vp <- grid::viewport(
+
+      if (debug) print(svg)
+
+      svg_grob$vp <- grid::viewport(
         width  = grid::unit(coords$size[[i]] * 3, 'pt'),
         height = grid::unit(coords$size[[i]] * 3, 'pt'),
         x      = coords$x[i],
         y      = coords$y[i]
       )
-      new_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
-      new_grob
+      svg_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
+      svg_grob
     }
 
 
@@ -179,76 +185,4 @@ GeomPointSVG <- ggplot2::ggproto(
 
   draw_key = draw_key_PointSVG
 )
-
-
-
-
-
-if (FALSE) {
-
-  library(ggplot2)
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Define some SVG
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  svg_text <- '
-  <svg viewBox="0 0 100 100 ">
-    <rect x="5" y="5" width="90" height="90" rx="20" stroke="{colour_rect}" fill="{{fill_rect}}" />
-    <circle cx="50" cy="50" r="30" fill="{{fill_circle}}" />
-  </svg>
-  '
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Use 'geom_svg' to plot with this symbol
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ggplot(head(mtcars)) +
-    geom_point_svg(
-      mapping     = aes(mpg, wt, size = cyl, fill_rect = cyl, colour_rect = mpg, fill_circle = as.factor(am)),
-      svg         = svg_text,
-      defaults    = list(fill_rect = 'lightblue', colour_rect='green', fill_circle = 'yellow')
-    ) +
-    theme_bw() +
-    scale_svg_colour_gradient('fill_rect') +
-    scale_svg_colour_gradient('colour_rect') +
-    scale_fill_viridis_d(aesthetics = 'fill_circle', guide = guide_legend(override.aes = list(size = 5)))
-
-
-
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Define some SVG
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  svg_file <- system.file("virus.svg", package = "ggsvg")
-  svg_text <- paste(readLines(svg_file), collapse = "\n")
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Use 'geom_svg' to plot with this symbol
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ggplot(head(mtcars)) +
-    geom_point_svg(
-      mapping     = aes(mpg, wt, size = cyl, fill_inner = as.factor(cyl), fill_outer = mpg, fill_circle = as.factor(am)),
-      svg         = svg_text,
-      defaults    = list(fill_outer = 'grey50', fill_inner = 'red')
-    ) +
-    theme_bw() +
-    scale_size_continuous(range = c(6, 20), guide = 'none') +
-    scale_svg_fill_discrete('fill_inner', guide = guide_legend(override.aes = list(size = 9))) +
-    scale_svg_fill_continuous('fill_outer')
-
-
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
 

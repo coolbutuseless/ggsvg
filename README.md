@@ -116,14 +116,14 @@ Some key things to note:
 
 -   Locations for ggplot to insert aesthetics via the `glue` package are
     marked with **double** curly braces i.e. `{{...}}`.
--   One such variables has been added to the SVG - `{{fill_tree}}` is
+-   One variable has been added to the SVG - `{{fill_tree}}`. This is
     used in place of the static colour that was defined in the original
     SVG
 -   `fill_tree` must now appear as an aesthetic in the call to
     `geom_point_svg()`
--   Need to inform `ggplot2` of the default value for each new aesthetic
-    by setting the `defaults` argument
--   For each aesthetic, you will need to add a scale with
+-   We need to inform `ggplot2` of the default value for each new
+    aesthetic by setting the `defaults` argument
+-   For each aesthetic, you will also need to add a scale with
     `scale_svg_*()` to let ggplot know how it should turn the mapped
     variable into a value to insert in the SVG.
 -   In this case, the variables is a `fill` variable, so use one of
@@ -282,7 +282,7 @@ grid::grid.draw(grob)
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
-#### Introduce mappable locatins
+#### Introduce mappable locations
 
 Add `{{}}` glue string locations and test it out
 
@@ -336,6 +336,31 @@ ggplot(data) +
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+
+## Using an SVG icon from the web
+
+``` r
+car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
+car_svg <- paste(readLines(car_url), collapse = "\n")
+
+car_grob <- svgparser::read_svg(car_svg)
+grid::grid.newpage()
+grid::grid.draw(car_grob)
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+``` r
+ggplot(mtcars) + 
+  geom_point_svg(
+    aes(mpg, wt),
+    svg = car_svg,
+    size = 8
+  ) + 
+  theme_bw()
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Acknowledgements
 
