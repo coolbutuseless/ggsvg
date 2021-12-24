@@ -1,7 +1,7 @@
 Package: ggsvg
 Type: Package
 Title: Geom for SVG Images
-Version: 0.1.0
+Version: 0.1.1
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Description: Geom for SVG Images.

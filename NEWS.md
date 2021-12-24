@@ -1,3 +1,7 @@
-# ggsvg 0.1.0
+# ggsvg 0.1.1 2021-12-24 
+
+* Add fastpath when SVG is static i.e. reduce number of parsing attempts
+
+# ggsvg 0.1.0 2021-12-24
 
 * Initial release
