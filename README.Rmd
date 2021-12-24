@@ -274,6 +274,9 @@ independently
 Note: Semicircles are drawn with path arcs in SVG and aren't that intuitive.
 
 ```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Hand craft two semi-circles using SVG path arcs
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 semicircles_svg <- '
 <svg width="100" height="100">
   <path d="M 0,50 a50,50 0 1,1 100,0" fill="#E79A16" />
@@ -291,6 +294,9 @@ grid::grid.draw(grob)
 Add `{{}}` glue string locations and test it out
 
 ```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Parameterise the radii for use with glue
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 semicircles_svg <- '
 <svg width="100" height="100">
   <path d="M {{50-radius_top}},50 a{{radius_top}},{{radius_top}} 0 1,1 {{2*radius_top}},0" fill="#E79A16" />
@@ -340,6 +346,9 @@ ggplot(data) +
 ## Using an SVG icon from the web
 
 ```{r fig.height=1}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Read SVG from the web
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
 car_svg <- paste(readLines(car_url), collapse = "\n")
 
@@ -358,6 +367,88 @@ ggplot(mtcars) +
   ) + 
   theme_bw()
 ```
+
+
+
+## Multiple different SVG
+
+Since SVG is just a character string, you can set a different SVG for
+every row of a data.frame, and then use this column as the `svg` aesthetic.
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Read multiple SVG somehow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+statue   <- paste(readLines("https://www.svgrepo.com/download/227885/statue-of-liberty.svg"), collapse = "\n")
+building <- paste(readLines("https://www.svgrepo.com/download/129010/bank-sign.svg")        , collapse = "\n")
+sign     <- paste(readLines("https://www.svgrepo.com/download/118570/exit-sign.svg")        , collapse = "\n")
+```
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a data.frame mapping 'type' to actual 'svg'
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+icons_df <- data.frame(
+  type = c('statue', 'building', 'sign'),
+  svg  = c( statue ,  building ,  sign ),
+  stringsAsFactors = FALSE
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some Points-of-Interest and assign an svg to each
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 20
+poi <- data.frame(
+  lat = runif(N),
+  lon = runif(N),
+  type = sample(c('statue', 'building', 'sign'), N, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+poi <- merge(poi, icons_df)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# {ggsvg}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(poi) + 
+  geom_point_svg(
+    aes(x = lon, y = lat, svg = I(svg)),
+    size = 10
+  ) + 
+  labs(
+    title = "{ggsvg} multiple SVG images"
+  ) + 
+  theme_bw()
+```
+
+## Alternate approach to multiple different SVG
+
+Instead of adding each `svg` to the `poi` data.frame, map `type` to the 
+`svg` aesthetic and use a `scale_svg_discrete_manual()` to map from `type`
+to the actual SVG.
+
+```{r}
+ggplot(poi) + 
+  geom_point_svg(
+    aes(x = lon, y = lat, svg = type),
+    size = 10
+  ) + 
+  scale_svg_discrete_manual(
+    aesthetics = 'svg', 
+    values = c(statue = statue, building = building, sign = sign),
+    guide = guide_legend(override.aes = list(size = 5))
+  ) + 
+  labs(
+    title = "{ggsvg} multiple SVG images"
+  ) + 
+  theme_bw()
+
+```
+
+
+
 
 
 
