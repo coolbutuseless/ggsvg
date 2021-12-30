@@ -448,8 +448,97 @@ ggplot(poi) +
 ```
 
 
+## Mapping aesthetics to SVG transforms
+
+Aesthethics are not limited to colour, fill, size etc.
+
+*Anything* in SVG can be used as a target for an aesthetic mapping.
+
+In this example the rotation of an SVG arrow is controlled via a value in 
+a data.frame.
 
 
+#### Define the SVG
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generic SVG arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arrow_text <- '
+<svg viewBox="0 0 100 100">
+  <g transform="rotate(45 50 50)">
+    <line x1="10" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="30" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="70" x2="90" y2="50" stroke="black" stroke-width="2" />
+  </g>
+</svg>
+'
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw the arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+svg <- svgparser::read_svg(arrow_text)
+grid::grid.newpage()
+grid::grid.draw(svg)
+```
+
+#### Introduce mappable locations (glue strings!)
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SVG arrow with controllable rotation angle
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arrow_text <- '
+<svg viewBox="0 0 100 100">
+  <g transform="rotate({{angle}} 50 50)">
+    <line x1="10" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="30" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="70" x2="90" y2="50" stroke="black" stroke-width="2" />
+  </g>
+</svg>
+'
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Test the rotation is changed as 'angle' is changed
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+angle <- -90
+final_svg <- glue::glue(arrow_text, .open = "{{", .close = "}}")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw the rotated arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+svg <- svgparser::read_svg(final_svg)
+grid::grid.newpage()
+grid::grid.draw(svg)
+```
+
+
+#### Create a plot with rotatable SVG arrow
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plausible vector field
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(13)
+value <- 360 * as.vector(ambient::normalise(ambient::noise_perlin(c(10, 10))))
+data  <- cbind(expand.grid(x=1:10, y=1:10), value)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use 'value' to control the arrow angle
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(data) + 
+  geom_raster(aes(x, y, fill = value)) + 
+  geom_point_svg(
+    aes(x, y, angle = I(value)), 
+    svg = arrow_text,
+    size = 10,
+    defaults = list(angle = 0)
+  ) + 
+  theme_bw() +
+  theme(legend.position = 'none') + 
+  scale_fill_viridis_c()
+```
 
 
 
