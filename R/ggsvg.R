@@ -146,7 +146,8 @@ GeomPointSVG <- ggplot2::ggproto(
     is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
 
     if (is_static_svg) {
-      svg_grob <- svgparser::read_svg(coords$svg[[1]])
+      # Parse the SVG just once
+      svg_grob_orig <- svgparser::read_svg(coords$svg[[1]])
     }
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,6 +162,10 @@ GeomPointSVG <- ggplot2::ggproto(
         svg         <- coords$svg[[i]]
         svg         <- glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}")
         svg_grob    <- svgparser::read_svg(svg)
+      } else {
+        # Copy the original grob and add a new suffix so that it is guaranteed
+        # that all grobs have a unique name
+        svg_grob <- add_suffix(svg_grob_orig, i)
       }
 
       if (debug) print(svg)

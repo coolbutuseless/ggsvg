@@ -39,7 +39,7 @@ qualitative_pal <- function (type, h, c, l, h.start, direction) {
 
 
 manual_scale <- function (aesthetic, values = NULL, breaks = waiver(), ..., limits = NULL) {
-  if (is_missing(values)) {
+  if (missing(values)) { # changed rlang::is_missing() to missing(). Mikefc 2021-12-31
     values <- NULL
   }
   else {

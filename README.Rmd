@@ -345,13 +345,23 @@ ggplot(data) +
 
 ## Using an SVG icon from the web
 
-```{r fig.height=1}
+```{r fig.height=1, eval=FALSE}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Read SVG from the web
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
 car_svg <- paste(readLines(car_url), collapse = "\n")
+```
 
+
+```{r eval=TRUE, echo=FALSE}
+# Local cache
+car_svg <- paste(readLines("man/figures/car-svgrepo-com.svg"), collapse = "\n")
+```
+
+
+
+```{r fig.height=1}
 car_grob <- svgparser::read_svg(car_svg)
 grid::grid.newpage()
 grid::grid.draw(car_grob)
@@ -375,7 +385,7 @@ ggplot(mtcars) +
 Since SVG is just a character string, you can set a different SVG for
 every row of a data.frame, and then use this column as the `svg` aesthetic.
 
-```{r}
+```{r eval = FALSE}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Read multiple SVG somehow
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -383,6 +393,14 @@ statue   <- paste(readLines("https://www.svgrepo.com/download/227885/statue-of-l
 building <- paste(readLines("https://www.svgrepo.com/download/129010/bank-sign.svg")        , collapse = "\n")
 sign     <- paste(readLines("https://www.svgrepo.com/download/118570/exit-sign.svg")        , collapse = "\n")
 ```
+
+```{r eval=TRUE, echo=FALSE}
+# Local Cache
+statue   <- paste(readLines("man/figures/statue-of-liberty-svgrepo-com.svg"), collapse = "\n")
+building <- paste(readLines("man/figures/bank-sign-svgrepo-com.svg")        , collapse = "\n")
+sign     <- paste(readLines("man/figures/exit-sign-svgrepo-com.svg")        , collapse = "\n")
+```
+
 
 
 ```{r}

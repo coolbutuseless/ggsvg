@@ -23,7 +23,6 @@
 #'
 #' @import ggplot2
 #' @import scales
-#' @import rlang
 #' @import glue
 #'
 #' @export

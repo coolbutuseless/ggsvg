@@ -351,13 +351,15 @@ ggplot(data) +
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
 car_svg <- paste(readLines(car_url), collapse = "\n")
+```
 
+``` r
 car_grob <- svgparser::read_svg(car_svg)
 grid::grid.newpage()
 grid::grid.draw(car_grob)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ``` r
 ggplot(mtcars) + 
@@ -369,7 +371,7 @@ ggplot(mtcars) +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 ## Multiple different SVG
 
@@ -424,7 +426,7 @@ ggplot(poi) +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ## Alternate approach to multiple different SVG
 
@@ -449,7 +451,7 @@ ggplot(poi) +
   theme_bw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ## Mapping aesthetics to SVG transforms
 
@@ -484,7 +486,7 @@ grid::grid.newpage()
 grid::grid.draw(svg)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 #### Introduce mappable locations (glue strings!)
 
@@ -517,7 +519,7 @@ grid::grid.newpage()
 grid::grid.draw(svg)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 #### Create a plot with rotatable SVG arrow
 
@@ -545,7 +547,7 @@ ggplot(data) +
   scale_fill_viridis_c()
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ## Acknowledgements
 
