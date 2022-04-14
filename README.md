@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ggsvg - Use SVG as points in ggplot
+# ggsvg - Use SVG as points in ggplot <img src="man/figures/logo-ggsvg.png" align="right" width="230"/>
+
+### With the novel capability of aesthetic mappings to *any* SVG feature
 
 <!-- badges: start -->
 
@@ -14,8 +16,15 @@ This SVG can be customised to respond to aesthetics e.g. element colours
 can changes in response to fill and/or colour scales.
 
 However, aesthetics are not limited to colour - any other SVG parameter
-can be linked to any aesthetic which makes sense e.g. an aesthethic may
+can be linked to any aesthetic which makes sense e.g. an aesthetic may
 be used to control the corner radius on a rounded rectangle.
+
+#### News
+
+With the release of v0.1.3, `{ggsvg}` has moved to using
+[`{rsvg}`](https://cran.r-project.org/package=rsvg) for SVG parsing, as
+it is faster and has better SVG suport than
+[`{svgparser}`](https://github.com/coolbutuseless/svgparser)
 
 ## What’s in the box
 
@@ -31,8 +40,6 @@ with:
 
 ``` r
 # install.package('remotes')
-remotes::install_github('coolbutuseless/cssparser')
-remotes::install_github('coolbutuseless/svgparser')
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
@@ -60,15 +67,15 @@ svg_text <- '
     <polygon points = "20,80 80,80 50,20" fill="darkgreen" />
     <polygon points = "40,83 60,83 60,95 40,95" fill="darkred" />
     <polygon points = "58.66 25.00 50.00 30.00 41.34 25.00 41.34 15.00 50.00 10.00 58.66 15.00 58.66 25.00" 
-       fill="yellow3" />
+       fill="yellow" />
   </svg>
   '
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Render SVG with `{svgparser}`
+# Render SVG to a rasterGrob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-grob <- svgparser::read_svg(svg_text)
+grob <- svg_to_rasterGrob(svg_text, interpolate = FALSE)
 grid::grid.newpage()
 grid::grid.draw(grob)
 ```
@@ -147,7 +154,7 @@ svg_text <- '
     <polygon points = "20,80 80,80 50,20" fill="{{fill_tree}}" />
     <polygon points = "40,83 60,83 60,95 40,95" fill="darkred" />
     <polygon points = "58.66 25.00 50.00 30.00 41.34 25.00 41.34 15.00 50.00 10.00 58.66 15.00 58.66 25.00" 
-       fill="yellow3" />
+       fill="yellow" />
   </svg>
   '
 
@@ -179,12 +186,12 @@ ggplot(mtcars) +
 ## More complex example - Virus with multiple aesthetics
 
 This is an SVG image of something virus-like from
-[wikimedia](https://commons.wikimedia.org/wiki/File:Virus_black_white.svg)
-- it is public domain.
+[wikimedia](https://commons.wikimedia.org/wiki/File:Virus_black_white.svg) -
+it is public domain.
 
 ``` r
-svg_file <- system.file("Virus_black_white.svg", package = "ggsvg")
-grob <- svgparser::read_svg(svg_file)
+svg_file <- system.file("virus.svg", package = "ggsvg")
+grob <- svg_to_rasterGrob(paste(readLines(svg_file), collapse="\n"))
 grid::grid.draw(grob)
 ```
 
@@ -278,7 +285,7 @@ semicircles_svg <- '
 </svg>
 '
 
-grob <- svgparser::read_svg(semicircles_svg)
+grob <- svg_to_rasterGrob(semicircles_svg)
 grid::grid.newpage()
 grid::grid.draw(grob)
 ```
@@ -305,8 +312,7 @@ radius_bot <- 30
 
 final_svg <- glue::glue(semicircles_svg, .open = "{{", .close = "}}")
 
-
-grob <- svgparser::read_svg(final_svg)
+grob <- svg_to_rasterGrob(final_svg)
 grid::grid.newpage()
 grid::grid.draw(grob)
 ```
@@ -330,7 +336,7 @@ data <- data.frame(
 ggplot(data) + 
   geom_point_svg(
     aes(x, y, radius_top = q1, radius_bot = q2), 
-    svg = semicircles_svg, 
+    svg = semicircles_svg,
     size = 10,
     defaults = list(radius_top = 50, radius_bot = 50)) +
   scale_svg_size('radius_top', range = c(30, 50), guide = 'none') + 
@@ -354,7 +360,7 @@ car_svg <- paste(readLines(car_url), collapse = "\n")
 ```
 
 ``` r
-car_grob <- svgparser::read_svg(car_svg)
+car_grob <- svg_to_rasterGrob(car_svg)
 grid::grid.newpage()
 grid::grid.draw(car_grob)
 ```
@@ -459,8 +465,8 @@ Aesthethics are not limited to colour, fill, size etc.
 
 *Anything* in SVG can be used as a target for an aesthetic mapping.
 
-In this example the rotation of an SVG arrow is controlled via a value
-in a data.frame.
+In this example the **rotation** of an SVG arrow is controlled via a
+value in a data.frame.
 
 #### Define the SVG
 
@@ -481,7 +487,7 @@ arrow_text <- '
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw the arrow
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-svg <- svgparser::read_svg(arrow_text)
+svg <- svg_to_rasterGrob(arrow_text)
 grid::grid.newpage()
 grid::grid.draw(svg)
 ```
@@ -514,7 +520,7 @@ final_svg <- glue::glue(arrow_text, .open = "{{", .close = "}}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw the rotated arrow
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-svg <- svgparser::read_svg(final_svg)
+svg <- svg_to_rasterGrob(final_svg)
 grid::grid.newpage()
 grid::grid.draw(svg)
 ```

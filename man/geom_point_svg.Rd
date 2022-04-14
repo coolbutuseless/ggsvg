@@ -23,5 +23,13 @@ documentation for \code{ggplot2::geom_point()}}
 \item{defaults}{named list of default values for new aesthetics}
 }
 \description{
-Draw SVG
+\emph{Aesthetics}
+\describe{
+\item{svg}{SVG as character string}
+\item{svg_width,svg_height}{Specify rendered width and/or height.  If only one of these values
+      is specified, then the other will be scaled to keep he aspect ratio.
+      If neither value is specified (the default) then dimensions will be taken from the
+      SVG itself.  This value could be used to increase the resolution of the SVG so it
+      does not appear blurry once rendered to an element in the plot e.g. \code{svg_width = 1000}}
+}
 }

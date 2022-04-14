@@ -9,7 +9,7 @@ draw_key_PointSVG <- function(data, params, size) {
 
   svg      <- data$svg[[1]]
   svg      <- glue::glue_data(data[1,], svg, .open = "{{", .close = "}}")
-  svg_grob <- svgparser::read_svg(svg)
+  svg_grob <- svg_to_rasterGrob(svg)
 
 
   w <- data$size[[1]] / size[[1]]
@@ -29,9 +29,22 @@ draw_key_PointSVG <- function(data, params, size) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Draw SVG
 #'
+#'
+#' \emph{Aesthetics}
+#' \describe{
+#' \item{svg}{SVG as character string}
+#' \item{svg_width,svg_height}{Specify rendered width and/or height.  If only one of these values
+#'       is specified, then the other will be scaled to keep he aspect ratio.
+#'       If neither value is specified (the default) then dimensions will be taken from the
+#'       SVG itself.  This value could be used to increase the resolution of the SVG so it
+#'       does not appear blurry once rendered to an element in the plot e.g. \code{svg_width = 1000}}
+#' }
+#'
+#'
 #' @param mapping,data,stat,position,...,na.rm,show.legend,inherit.aes see
 #'        documentation for \code{ggplot2::geom_point()}
 #' @param defaults named list of default values for new aesthetics
+#'
 #'
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,14 +140,15 @@ GeomPointSVG <- ggplot2::ggproto(
   required_aes = c("x", "y"),
   non_missing_aes = c("size"),
   default_aes = ggplot2::aes(
-    shape  = 19,
-    colour = "black",
-    size   = 1.5,
-    fill   = 'black',
-    alpha  = 1,
-    stroke = 0.5,
-    svg    = svg_text,
-    scale  = 5
+    shape      = 19,
+    colour     = "black",
+    size       = 1.5,
+    fill       = 'black',
+    alpha      = 1,
+    stroke     = 0.5,
+    svg        = svg_text,
+    svg_width  = NULL,
+    svg_height = NULL
   ),
 
 
@@ -147,7 +161,7 @@ GeomPointSVG <- ggplot2::ggproto(
 
     if (is_static_svg) {
       # Parse the SVG just once
-      svg_grob_orig <- svgparser::read_svg(coords$svg[[1]])
+      svg_grob_orig <- svg_to_rasterGrob(coords$svg[[1]])
     }
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,9 +173,28 @@ GeomPointSVG <- ggplot2::ggproto(
 
       # if SVG changes, then need to re-parse it for every row
       if (!is_static_svg) {
-        svg         <- coords$svg[[i]]
-        svg         <- glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}")
-        svg_grob    <- svgparser::read_svg(svg)
+        svg <- coords$svg[[i]]
+
+        # Carefully glue() and trap any errors in the process so we can
+        # give good feedback to the user
+        svg <- tryCatch(
+          glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}"),
+          error = function(e) {
+            msg <- e$message
+            missing_obj <- stringr::str_match(msg, "object '(.*)' not found")
+            if (nrow(zz) == 1) {
+              var <- missing_obj[1, 2]
+              stop("Variable '", var, "' required for SVG has not been found\n",
+                   "Please assign a default value using 'geom_point_svg(..., defaults = list(`", var, "` = ...))'\n",
+                   "You may also include `", var, "` as a mapped or static aesthetic",
+                   call. = FALSE)
+            } else {
+              stop(msg)
+            }
+          }
+        )
+
+        svg_grob <- svg_to_rasterGrob(svg, width = coords$svg_width[i], height = coords$svg_height[i])
       } else {
         # Copy the original grob and add a new suffix so that it is guaranteed
         # that all grobs have a unique name

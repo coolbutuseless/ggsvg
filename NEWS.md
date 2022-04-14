@@ -1,3 +1,9 @@
+
+# ggsvg 0.1.3 2022-04-14
+
+* Dropping `{svgparser}` as a dependency
+* Use `{rsvg}` for parsing SVG and then massaging its output to a rasterGrob
+
 # ggsvg 0.1.2 2021-12-31
 
 * Adjust fastpath such that grob names are always unique
