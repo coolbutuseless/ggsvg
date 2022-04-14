@@ -1,4 +1,9 @@
 
+# ggsvg 0.1.4 2022-04-15
+
+* call `rsvg::rsvg_nativeraster()` if user has version >= 2.3.0 of `rsvg`
+* include `css` argument in `svg_to_nativeRaster()`
+
 # ggsvg 0.1.3 2022-04-14
 
 * Dropping `{svgparser}` as a dependency

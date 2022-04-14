@@ -4,7 +4,7 @@
 \alias{svg_to_rasterGrob}
 \title{Convert SVG to rasterGrob via rsvg}
 \usage{
-svg_to_rasterGrob(svg_text, width = NULL, height = NULL, ...)
+svg_to_rasterGrob(svg_text, width = NULL, height = NULL, css = NULL, ...)
 }
 \arguments{
 \item{svg_text}{charcter string containing valid SVG}
@@ -14,6 +14,8 @@ SVG size if possible}
 
 \item{height}{output height in pixels or \code{NULL} for default size derived from
 SVG size if possible}
+
+\item{css}{see documentation for \code{rsvg::rsvg()}.}
 
 \item{...}{other arguments passed to `grdi::rasterGrob()`. A common extra argument is
 \code{interpolate = FALSE}.}

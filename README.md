@@ -35,11 +35,15 @@ it is faster and has better SVG suport than
 
 ## Installation
 
-You can install from [GitHub](https://github.com/coolbutuseless/ggsvg)
-with:
+Install from [GitHub](https://github.com/coolbutuseless/ggsvg).
+
+As of 2022-04-15, I recommend also installing latest `rsvg` from github
+as it has new faster nativeraster support. This should appear in v2.3.0
+on CRAN at a latter stage.
 
 ``` r
 # install.package('remotes')
+# remotes::install_github('https://github.com/ropensci/rsvg') 
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
