@@ -195,13 +195,15 @@ GeomPointSVG <- ggplot2::ggproto(
         )
 
         svg_grob <- svg_to_rasterGrob(svg, width = coords$svg_width[i], height = coords$svg_height[i])
+
+
+        if (debug) print(svg)
+
       } else {
         # Copy the original grob and add a new suffix so that it is guaranteed
         # that all grobs have a unique name
         svg_grob <- add_suffix(svg_grob_orig, i)
       }
-
-      if (debug) print(svg)
 
       svg_grob$vp <- grid::viewport(
         width  = grid::unit(coords$size[[i]] * 3, 'pt'),
