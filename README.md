@@ -41,7 +41,7 @@ to convert SVG into an R raster object.
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
-## Using an existing SVG
+# Using an existing SVG
 
 In the simplest case where the user just wants to use an SVG as a
 plotting glyph, only two changes are needed over a basic ggplot:
@@ -71,10 +71,56 @@ ggplot(mtcars) +
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
-## Create simple SVG Image
+# Using “CSS Aesthetics” to style an existing SVG
+
+New aesthetics can be used which map from ggplot values into the SVG’s
+CSS.
+
+You’ll have to know some SVG and CSS to achieve this, as well as being
+comfortable with the use of ggplot2 scales.
+
+In his particular case in the SVG for the car, the 3rd path element in
+the SVG is the body of the car. This is equivalent to a a CSS selector
+or `path:nth-child(3)`.
+
+Then we map the `fill` CSS property to `as.factor(cyl)` by writing the
+mapped aesthetic as
+`aes(..., "css=path:nth-child(3):fill" = as.factor(cyl))`.
+
+Further, since this is not a standard aesthethic name, ggplot does not
+know how to translate the cylinder values into what this new aesthetic
+represents, so we have to explicitly nominate this as a fill by using
+`scale_svg_fill_discrete()`
+
+``` r
+ggplot(mtcars) + 
+  geom_point_svg(
+    aes(mpg, wt, "css=path:nth-child(3):fill" = as.factor(cyl)), 
+    svg = car_svg, 
+    size = 8) + 
+  scale_svg_fill_discrete(aesthetics = "css=path:nth-child(3):fill") + 
+  theme_bw()
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+# Parameterising an SVG and using custom aesthetics
+
+Another way of customising SVG to is to convert the SVG text into a
+parameterised string to use with glue.
+
+The parameters in the string are then mapped to values using ggplot2 -
+again using a new aesthetic name and nominating the type of scale to use
+to map values
+
+1.  Create or edit a base SVG
+2.  Parameterise the SVG using glue placeholders for values later filled
+    by ggplot
+
+## (1) Create base SVG Image
 
 The following simple SVG constructed by hand is just a square and a
-ciricle.
+circle.
 
 ``` r
 library(ggplot2)
@@ -102,27 +148,7 @@ grid::grid.draw(grob)
 
 <img src="man/figures/README-simple_svg-1.png" width="100%" />
 
-## Use SVG as point
-
-``` r
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use 'geom_point_svg' to plot SVG image at each point
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ggplot(mtcars) +
-  geom_point_svg(
-    mapping  = aes(mpg, wt),
-    svg      = simple_text,
-    size     = 10
-  ) +
-  theme_bw() + 
-  labs(
-    title = "{ggsvg} Using SVG as points"
-  )
-```
-
-<img src="man/figures/README-simple-1.png" width="100%" />
-
-## Parameterise the SVG
+## (2) Parameterise the SVG
 
 Introduce parameters in the SVG using [glue]() syntax with double curly
 braces i.e. `{{}}`
@@ -152,9 +178,9 @@ grid::grid.newpage()
 grid::grid.draw(grob)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
-## Map ggplot2 aesthetics to the parameterised SVG
+## (3) Map ggplot2 aesthetics to the parameterised SVG
 
 ``` r
 ggplot(mtcars) +
@@ -177,35 +203,7 @@ ggplot(mtcars) +
 #> Warning: Using size for a discrete variable is not advised.
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-## Simple aesthetics
-
-This is a basic example showing how ggplot aesthetics may be used to
-control SVG image properties.
-
-Some key things to note:
-
--   Locations for ggplot to insert aesthetics via the `glue` package are
-    marked with **double** curly braces i.e. `{{...}}`.
--   One variable has been added to the SVG - `{{fill_tree}}`. This is
-    used in place of the static colour that was defined in the original
-    SVG
--   `fill_tree` must now appear as an aesthetic in the call to
-    `geom_point_svg()`
--   We need to inform `ggplot2` of the default value for each new
-    aesthetic by setting the `defaults` argument
--   For each aesthetic, you will also need to add a scale with
-    `scale_svg_*()` to let ggplot know how it should turn the mapped
-    variable into a value to insert in the SVG.
--   In this case, the variables is a `fill` variable, so use one of
-    `scale_svg_fill_*()` family to ensure that the value is mapped to a
-    colour.
--   The new `scale_svg_*()` scales are mostly identical to their
-    `ggplot` counterparts except:
-    -   The `aesthetics` argument no longer has a default value
-    -   `colourbar` guides have been tweaked to allow for non-standard
-        aesthetics.
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Acknowledgements
 

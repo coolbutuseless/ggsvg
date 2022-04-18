@@ -25,5 +25,7 @@ Imports:
 Suggests: 
     knitr,
     rmarkdown,
-    ambient
+    ambient,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
+Config/testthat/edition: 3

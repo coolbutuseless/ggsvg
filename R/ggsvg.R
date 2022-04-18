@@ -7,14 +7,37 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 draw_key_PointSVG <- function(data, params, size) {
 
+  # print(data)
+
+  # SVG
   svg      <- data$svg[[1]]
   svg      <- glue::glue_data(data[1,], svg, .open = "{{", .close = "}}")
-  svg_grob <- svg_to_rasterGrob(svg)
+
+  # CSS
+  css <- NULL
+
+  css_names_idx <- vapply(colnames(data), is_valid_css_aes, logical(1))
+  css_names     <- colnames(data)[css_names_idx]
+  has_css_aes   <- any(css_names_idx)
+
+  if (any(css_names_idx)) {
+    for (css_name in css_names) {
+      glue_string <- css_aes_to_glue_string(css_name)
+      this_css <- glue::glue_data(data, glue_string, .open = "{{", .close = "}}")
+      css <- c(css, this_css)
+    }
+    css <- paste(css, collapse="\n")
+  }
 
 
+  # Create GROB
+  svg_grob <- svg_to_rasterGrob(svg, css = css)
+
+  # Figure out display size in legned
   w <- data$size[[1]] / size[[1]]
   h <- data$size[[1]] / size[[1]]
 
+  # Set size in viewport
   svg_grob$vp <- grid::viewport(
     width  = w,
     height = h
@@ -65,6 +88,17 @@ geom_point_svg <- function(mapping     = NULL,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # ggsvg has to dynamically add new aesthetics to the Geom
+  # If I keep adding them to "GeomPointSVG" then they are attached to
+  # the ggproto object for the duration of the R session.
+  # This can lead to aesthetics handing around which are actively an issue
+  # for different SVG - especially CSS Aesthetics.
+  # Instead, create a new GeomPointSVG Geom for every plot, so it can
+  # be adapted and updated
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  this_geom <- create_new_GeomPointSVG()
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Figure out which aesthetics are unknown
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -73,9 +107,9 @@ geom_point_svg <- function(mapping     = NULL,
 
   # The geom knows all these aesthetics
   known_aes <- sort(unique(c(
-    GeomPointSVG$required_aes,
-    GeomPointSVG$non_missing_aes,
-    names(GeomPointSVG$default_aes)
+    this_geom$required_aes,
+    this_geom$non_missing_aes,
+    names(this_geom$default_aes)
   )))
 
   unknown_aes <- setdiff(this_aes, known_aes)
@@ -85,9 +119,24 @@ geom_point_svg <- function(mapping     = NULL,
   # Throw an error if none given
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   unhandled_aes <- unknown_aes[!unknown_aes %in% names(defaults)]
+  css_aes       <- unhandled_aes[ startsWith(unhandled_aes, "css=")]
+  unhandled_aes <- unhandled_aes[!startsWith(unhandled_aes, "css=")]
   if (length(unhandled_aes) > 0) {
     stop("Please set a `defaults` value for: ", deparse1(unhandled_aes))
   }
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Add in defaults for CSS aesthetics
+  # If we specify them as 'NULL', when the CSS aes is converted to a glue
+  # string, the NULL value will cause the glue string to produce an
+  # empty string. Thus the CSS will not be created and the built-in
+  # style in the SVG will be used.
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  for (css_name in css_aes) {
+    this_geom$default_aes[[css_name]] <-list(NULL)
+  }
+
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Add all the default values for the aesthetics
@@ -96,8 +145,9 @@ geom_point_svg <- function(mapping     = NULL,
     aes_name    <- names(defaults)[i]
     aes_default <- defaults[[i]]
 
-    GeomPointSVG$default_aes[[aes_name]] <- aes_default
+    this_geom$default_aes[[aes_name]] <- aes_default
   }
+
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,7 +157,7 @@ geom_point_svg <- function(mapping     = NULL,
     data        = data,
     mapping     = mapping,
     stat        = stat,
-    geom        = GeomPointSVG,
+    geom        = this_geom,
     position    = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
@@ -128,106 +178,171 @@ svg_text <- '
   </svg>
   '
 
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' GeomSVG
+#' Create a fresh instance of a GeomPointSVG ggproto object
 #'
-#' @rdname ggplot2-ggproto
-#' @format NULL
-#' @usage NULL
-#' @export
-#' @import ggplot2
+#' These Geoms are created dynamically as each time \code{geom_point_svg()}
+#' is called, it wants to customize the \code{$default_aes} on this
+#' ggproto.  Because ggproto objects are environments, then setting a default
+#' on the global copy would set the default for all references. This will
+#' get messy as things like CSS Aesthetics should not be shared between
+#' plots.
+#'
+#' So every geom_point_svg() gets a fresh GeomPointSVG by calling this function.
+#'
+#'
+#' @return ggproto object for GeomPointSVG
+#'
 #' @import grid
-#' @export
+#' @import ggplot2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-GeomPointSVG <- ggplot2::ggproto(
-  "GeomPointSVG",
-  ggplot2::GeomPoint,
-  required_aes = c("x", "y"),
-  non_missing_aes = c("size"),
-  default_aes = ggplot2::aes(
-    shape      = 19,
-    colour     = "black",
-    size       = 1.5,
-    fill       = 'black',
-    alpha      = 1,
-    stroke     = 0.5,
-    svg        = svg_text,
-    svg_width  = NULL,
-    svg_height = NULL
-  ),
+create_new_GeomPointSVG <- function() {
+  GeomPointSVG <- ggplot2::ggproto(
+    "GeomPointSVG",
+    ggplot2::GeomPoint,
+    required_aes = c("x", "y"),
+    non_missing_aes = c("size"),
+    default_aes = ggplot2::aes(
+      shape      = 19,
+      colour     = "black",
+      size       = 1.5,
+      fill       = 'black',
+      alpha      = 1,
+      stroke     = 0.5,
+      svg        = svg_text,
+      svg_width  = NULL,
+      svg_height = NULL
+    ),
 
 
-  draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
+    draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
 
-    debug  <- isTRUE(getOption("GGSVG_DEBUG", FALSE))
-    coords <- coord$transform(data, panel_params)
-
-    is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
-
-    if (is_static_svg) {
-      # Parse the SVG just once
-      svg_grob_orig <- svg_to_rasterGrob(coords$svg[[1]])
-    }
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Function to create a grob for a row in coords
-    # @param i row number
-    # @return grob for this row
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    create_grob_for_plot <- function(i) {
-
-      # if SVG changes, then need to re-parse it for every row
-      if (!is_static_svg) {
-        svg <- coords$svg[[i]]
-
-        # Carefully glue() and trap any errors in the process so we can
-        # give good feedback to the user
-        svg <- tryCatch(
-          glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}"),
-          error = function(e) {
-            msg <- e$message
-            missing_obj <- stringr::str_match(msg, "object '(.*)' not found")
-            if (nrow(zz) == 1) {
-              var <- missing_obj[1, 2]
-              stop("Variable '", var, "' required for SVG has not been found\n",
-                   "Please assign a default value using 'geom_point_svg(..., defaults = list(`", var, "` = ...))'\n",
-                   "You may also include `", var, "` as a mapped or static aesthetic",
-                   call. = FALSE)
-            } else {
-              stop(msg)
-            }
-          }
-        )
-
-        svg_grob <- svg_to_rasterGrob(svg, width = coords$svg_width[i], height = coords$svg_height[i])
+      debug  <- isTRUE(getOption("GGSVG_DEBUG", FALSE))
+      coords <- coord$transform(data, panel_params)
 
 
-        if (debug) print(svg)
-
-      } else {
-        # Copy the original grob and add a new suffix so that it is guaranteed
-        # that all grobs have a unique name
-        svg_grob <- add_suffix(svg_grob_orig, i)
+      if (debug) {
+        message("GeomPointSVG$draw_panel() 'coords' data.frame names")
+        print(names(coords))
       }
 
-      svg_grob$vp <- grid::viewport(
-        width  = grid::unit(coords$size[[i]] * 3, 'pt'),
-        height = grid::unit(coords$size[[i]] * 3, 'pt'),
-        x      = coords$x[i],
-        y      = coords$y[i]
-      )
-      svg_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
-      svg_grob
-    }
+      is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
+
+      css_names_idx <- vapply(colnames(coords), is_valid_css_aes, logical(1))
+      css_names     <- colnames(coords)[css_names_idx]
+      has_css_aes   <- any(css_names_idx)
+
+      if (is_static_svg && !has_css_aes) {
+        # Parse the SVG just once
+        svg_grob_orig <- svg_to_rasterGrob(coords$svg[[1]])
+      }
 
 
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Create a grob for each row in coords and return a grobTree
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    svg_grobs <- lapply(seq_len(nrow(coords)), create_grob_for_plot)
-    do.call(grobTree, svg_grobs)
-  },
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Function to create a grob for a row in coords
+      # @param i row number
+      # @return grob for this row
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      create_grob_for_plot <- function(i) {
 
-  draw_key = draw_key_PointSVG
-)
+        # if SVG changes, then need to re-parse it for every row
+        if (is_static_svg && !has_css_aes) {
+          # Copy the original grob and add a new suffix so that it is guaranteed
+          # that all grobs have a unique name
+          svg_grob <- add_suffix(svg_grob_orig, i)
+        } else {
+          svg <- coords$svg[[i]]
 
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          # Carefully glue() and trap any errors in the process so we can
+          # give good feedback to the user on what variables might
+          # be an issue
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          svg <- tryCatch(
+            glue::glue_data(coords[i,], svg, .open = "{{", .close = "}}"),
+            error = function(e) {
+              msg <- e$message
+              missing_obj <- stringr::str_match(msg, "object '(.*)' not found")
+              if (nrow(missing_obj) == 1) {
+                var <- missing_obj[1, 2]
+                stop("Variable '", var, "' required for SVG has not been found\n",
+                     "Please assign a default value using 'geom_point_svg(..., defaults = list(`", var, "` = ...))'\n",
+                     "You may also include `", var, "` as a mapped or static aesthetic",
+                     call. = FALSE)
+              } else {
+                stop(msg)
+              }
+            }
+          )
+
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          if (debug) print(svg)
+
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          # Unpack CSS if any
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          css <- NULL
+          if (has_css_aes) {
+            for (css_name in css_names) {
+              glue_string <- css_aes_to_glue_string(css_name)
+              this_css <- glue::glue_data(coords[i,], glue_string, .open = "{{", .close = "}}")
+              css <- c(css, this_css)
+            }
+            css <- paste(css, collapse="\n")
+          }
+
+
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          # Render grob
+          #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          svg_grob <- svg_to_rasterGrob(
+            svg,
+            width  = coords$svg_width[i],
+            height = coords$svg_height[i],
+            css    = css
+          )
+
+        }
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Adjust viewport of grob so it appears in the correct location on plot
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        svg_grob$vp <- grid::viewport(
+          width  = grid::unit(coords$size[[i]] * 3, 'pt'),
+          height = grid::unit(coords$size[[i]] * 3, 'pt'),
+          x      = coords$x[i],
+          y      = coords$y[i]
+        )
+        svg_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
+        svg_grob
+      }
+
+
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Create a grob for each row in coords and return a grobTree
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      svg_grobs <- lapply(seq_len(nrow(coords)), create_grob_for_plot)
+      do.call(grobTree, svg_grobs)
+    },
+
+    draw_key = draw_key_PointSVG
+  )
+}
+
+
+
+#' #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' #' GeomPointSVG
+#' #'
+#' #' @rdname ggplot2-ggproto
+#' #' @format NULL
+#' #' @usage NULL
+#' #' @export
+#' #' @import ggplot2
+#' #' @import grid
+#' #' @export
+#' #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' GeomPointSVG <- create_new_GeomPointSVG()

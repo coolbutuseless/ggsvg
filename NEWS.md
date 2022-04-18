@@ -3,6 +3,7 @@
 
 * Use `rsvg` v2.3.0+ for all SVG conversion
 * Remove all C wrappers now that `rsvg` 2.3.0 on CRAN has nativeraster support
+* Introduce CSS aesthetics
 
 # ggsvg 0.1.4 2022-04-15
 

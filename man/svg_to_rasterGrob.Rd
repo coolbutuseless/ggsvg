@@ -12,12 +12,10 @@ svg_to_rasterGrob(svg_text, width = NULL, height = NULL, css = NULL, ...)
 \item{width, height}{output width,height in pixels or \code{NULL} (the default)
 which inputes the size from the SVG}
 
-\item{css}{path/url to external css file or raw vector with css data.
-This requires your system has a recent version of librsvg.See
-documentation for \code{rsvg::rsvg()}.}
+\item{css}{character string containing CSS text.
+This requires your system has a recent version of librsvg.}
 
-\item{...}{other arguments passed to `grid::rasterGrob()`. A common extra
-argument is \code{interpolate = FALSE}.}
+\item{...}{other arguments passed to `grid::rasterGrob()`.}
 }
 \value{
 rasterGrob object wrapping the nativeraster returned from \code{rsvg}
