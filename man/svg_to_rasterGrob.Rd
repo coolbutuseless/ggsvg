@@ -2,31 +2,26 @@
 % Please edit documentation in R/rsvg.R
 \name{svg_to_rasterGrob}
 \alias{svg_to_rasterGrob}
-\title{Convert SVG to rasterGrob via rsvg}
+\title{Convert SVG to a \code{grid} \code{rasterGrob} object}
 \usage{
 svg_to_rasterGrob(svg_text, width = NULL, height = NULL, css = NULL, ...)
 }
 \arguments{
-\item{svg_text}{charcter string containing valid SVG}
+\item{svg_text}{character string containing valid SVG}
 
-\item{width}{output width in pixels or \code{NULL} for default size derived from
-SVG size if possible}
+\item{width, height}{output width,height in pixels or \code{NULL} (the default)
+which inputes the size from the SVG}
 
-\item{height}{output height in pixels or \code{NULL} for default size derived from
-SVG size if possible}
+\item{css}{path/url to external css file or raw vector with css data.
+This requires your system has a recent version of librsvg.See
+documentation for \code{rsvg::rsvg()}.}
 
-\item{css}{see documentation for \code{rsvg::rsvg()}.}
-
-\item{...}{other arguments passed to `grdi::rasterGrob()`. A common extra argument is
-\code{interpolate = FALSE}.}
+\item{...}{other arguments passed to `grid::rasterGrob()`. A common extra
+argument is \code{interpolate = FALSE}.}
 }
 \value{
-rasterGrob
+rasterGrob object wrapping the nativeraster returned from \code{rsvg}
 }
 \description{
-Note: Waiting on built-in nativeraster export from rsvg. PR submitted 2022-04-14
-}
-\details{
-Note: Calling into the \code{rsvg} package C code is not really allowed by
-CRAN, but it works for now to get it released for testing.
+Convert SVG to a \code{grid} \code{rasterGrob} object
 }

@@ -1,0 +1,100 @@
+---
+title: "Single SVG with multiple aesthetics - Mushroom plot"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Single SVG with multiple aesthetics - Mushroom plot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(ggsvg)
+```
+
+
+
+## Mushroom plot 
+
+A mushroom plot is a style of plot consistning of two semi-circles which can be 
+sized/styled independently to represent two quantities at a single graph 
+location.
+
+
+#### Create the base SVG
+
+Note: Semicircles are drawn with path arcs in SVG and aren't that intuitive.
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Hand craft two semi-circles using SVG path arcs
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+semicircles_svg <- '
+<svg width="100" height="100">
+  <path d="M 0,50 a50,50 0 1,1 100,0" fill="#E79A16" />
+  <path d="M 0,50 a50,50 0 0,0 100,0" fill="#D78590" />
+</svg>
+'
+
+grob <- svg_to_rasterGrob(semicircles_svg)
+grid::grid.newpage()
+grid::grid.draw(grob)
+```
+
+#### Create Parameterised SVG
+
+Add `{{}}` glue string locations and test it out
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Parameterise the radii for use with glue
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+semicircles_svg <- '
+<svg width="100" height="100">
+  <path d="M {{50-radius_top}},50 a{{radius_top}},{{radius_top}} 0 1,1 {{2*radius_top}},0" fill="#E79A16" />
+  <path d="M {{50-radius_bot}},50 a{{radius_bot}},{{radius_bot}} 0 0,0 {{2*radius_bot}},0" fill="#D78590" />
+</svg>
+'
+
+radius_top <- 40
+radius_bot <- 30
+
+final_svg <- glue::glue(semicircles_svg, .open = "{{", .close = "}}")
+
+grob <- svg_to_rasterGrob(final_svg)
+grid::grid.newpage()
+grid::grid.draw(grob)
+```
+
+#### Create a `ggsvg` plot mapping 2 different quantities to the size
+
+```{r fig.width=6, fig.height=4}
+N <- 20
+data <- data.frame(
+  x  = runif(N),
+  y  = runif(N),
+  q1 = runif(N),
+  q2 = runif(N),
+  stringsAsFactors = FALSE
+)
+
+ggplot(data) + 
+  geom_point_svg(
+    aes(x, y, radius_top = q1, radius_bot = q2), 
+    svg = semicircles_svg,
+    size = 10,
+    defaults = list(radius_top = 50, radius_bot = 50)) +
+  scale_svg_size('radius_top', range = c(30, 50), guide = 'none') + 
+  scale_svg_size('radius_bot', range = c(30, 50), guide = 'none') + 
+  theme_bw() +
+  labs(
+    title = "{ggsvg} Multiple continuous aesthetics"
+  )
+```

@@ -45,7 +45,12 @@ draw_key_PointSVG <- function(data, params, size) {
 #'        documentation for \code{ggplot2::geom_point()}
 #' @param defaults named list of default values for new aesthetics
 #'
+#' Set `options(GGSVG_DEBUG = TRUE)` for some verbose debugging which will
+#' cause `{ggsvg}` to output (to the console) the final SVG for each and every element
+#' in the plot.
 #'
+#'
+#' @return ggplot2 layer object
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 geom_point_svg <- function(mapping     = NULL,

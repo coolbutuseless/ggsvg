@@ -124,7 +124,7 @@ scale_svg_alpha_continuous <- function (aesthetics,
 scale_svg_alpha_discrete <- function (aesthetics,
                                       ...)
 {
-  warning("Using alpha for a discrete variable is not advised.")
+  warning("Using alpha for a discrete variable is not advised.", call. = FALSE)
   scale_svg_alpha_ordinal(...)
 }
 
@@ -279,7 +279,7 @@ scale_svg_colour_fermenter <- function (aesthetics,
 {
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
-    warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead")
+    warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead", call. = FALSE)
   }
   ggplot2::binned_scale(
     aesthetics,
@@ -691,7 +691,7 @@ scale_svg_fill_fermenter <- function (aesthetics,
 {
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
-    warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead")
+    warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead", call. = FALSE)
   }
   ggplot2::binned_scale(
     aesthetics, "fermenter",
@@ -1213,8 +1213,8 @@ scale_svg_size_continuous <- function (aesthetics,
 scale_svg_size_discrete <- function (aesthetics,
                                      ...)
 {
-  warning("Using size for a discrete variable is not advised.")
-  scale_svg_size_ordinal(...)
+  warning("Using size for a discrete variable is not advised.", call. = FALSE)
+  scale_svg_size_ordinal(aesthetics = aesthetics, ...)
 }
 
 

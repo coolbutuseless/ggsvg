@@ -1,0 +1,109 @@
+---
+title: "Multiple SVG"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multiple SVG}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 6,
+  fig.height = 4
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(ggsvg)
+```
+
+## Multiple different SVG
+
+Since SVG is just a character string, you can set a different SVG for
+every row of a data.frame, and then use this column as the `svg` aesthetic.
+
+
+```{r eval = FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Read multiple SVG somehow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+statue   <- paste(readLines("https://www.svgrepo.com/download/227885/statue-of-liberty.svg"), collapse = "\n")
+building <- paste(readLines("https://www.svgrepo.com/download/129010/bank-sign.svg")        , collapse = "\n")
+sign     <- paste(readLines("https://www.svgrepo.com/download/118570/exit-sign.svg")        , collapse = "\n")
+```
+
+```{r eval=TRUE, echo=FALSE}
+# Local Cache
+statue   <- paste(readLines("svg/statue-of-liberty-svgrepo-com.svg"), collapse = "\n")
+building <- paste(readLines("svg/bank-sign-svgrepo-com.svg")        , collapse = "\n")
+sign     <- paste(readLines("svg/exit-sign-svgrepo-com.svg")        , collapse = "\n")
+```
+
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define a data.frame mapping 'type' to actual 'svg'
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+icons_df <- data.frame(
+  type = c('statue', 'building', 'sign'),
+  svg  = c( statue ,  building ,  sign ),
+  stringsAsFactors = FALSE
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some Points-of-Interest and assign an svg to each
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 20
+poi <- data.frame(
+  lat = runif(N),
+  lon = runif(N),
+  type = sample(c('statue', 'building', 'sign'), N, replace = TRUE),
+  stringsAsFactors = FALSE
+)
+
+poi <- merge(poi, icons_df)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# {ggsvg}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(poi) + 
+  geom_point_svg(
+    aes(x = lon, y = lat, svg = I(svg)),
+    size = 10
+  ) + 
+  labs(
+    title = "{ggsvg} multiple SVG images"
+  ) + 
+  theme_bw()
+```
+
+
+## Alternate approach to multiple different SVG
+
+Instead of adding each `svg` to the `poi` data.frame, map `type` to the 
+`svg` aesthetic and use a `scale_svg_discrete_manual()` to map from `type`
+to the actual SVG.
+
+```{r}
+ggplot(poi) + 
+  geom_point_svg(
+    aes(x = lon, y = lat, svg = type),
+    size = 10
+  ) + 
+  scale_svg_discrete_manual(
+    aesthetics = 'svg', 
+    values = c(statue = statue, building = building, sign = sign),
+    guide = guide_legend(override.aes = list(size = 5))
+  ) + 
+  labs(
+    title = "{ggsvg} multiple SVG images"
+  ) + 
+  theme_bw()
+
+```

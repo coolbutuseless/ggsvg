@@ -1,0 +1,62 @@
+---
+title: "Using a downloaded SVG"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using a downloaded SVG}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ggplot2)
+library(ggsvg)
+```
+
+
+
+## Using an SVG icon from the web
+
+
+This example grabs an SVG from the internet and then uses it as a 
+plotting glyph without further modification.
+
+
+```{r fig.height=1, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Read SVG from the web
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
+car_svg <- paste(readLines(car_url), collapse = "\n")
+```
+
+
+```{r eval=TRUE, echo=FALSE}
+# Local cache
+car_svg <- paste(readLines("svg/car-svgrepo-com.svg"), collapse = "\n")
+```
+
+
+
+```{r fig.height=1}
+car_grob <- svg_to_rasterGrob(car_svg)
+grid::grid.newpage()
+grid::grid.draw(car_grob)
+```
+
+
+```{r fig.width=6, fig.height=4}
+ggplot(mtcars) + 
+  geom_point_svg(
+    aes(mpg, wt),
+    svg = car_svg,
+    size = 8
+  ) + 
+  theme_bw()
+```

@@ -1,4 +1,9 @@
 
+# ggsvg 0.1.5 2022-04-18
+
+* Use `rsvg` v2.3.0+ for all SVG conversion
+* Remove all C wrappers now that `rsvg` 2.3.0 on CRAN has nativeraster support
+
 # ggsvg 0.1.4 2022-04-15
 
 * call `rsvg::rsvg_nativeraster()` if user has version >= 2.3.0 of `rsvg`

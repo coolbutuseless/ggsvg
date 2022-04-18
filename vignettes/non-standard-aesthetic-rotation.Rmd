@@ -1,0 +1,135 @@
+---
+title: "Non-Standard Aesthetic: Rotation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-Standard Aesthetic: Rotation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r setup}
+library(ggplot2)
+library(ggsvg)
+```
+
+## Introduction
+
+This example steps through the process of creating an SVG and mapping 
+an SVG characteristic into a ggplot2 aesthetic.
+
+
+ggplot2 aesthethics are not limited to colour, fill, size etc.
+
+*Anything* in SVG can be used as a target for an aesthetic mapping.
+
+In this example the **rotation** of an SVG arrow is controlled via a value in 
+a data.frame.
+
+
+Overview:
+
+1. Introduce parameters with [glue](https://cran.r-project.org/package=glue) syntax, 
+   using double curly braces `{{}}`
+2. Set the defaults for these parameters using `geom_point_svg(..., defaults = list(...))`
+3. Use these parameters as aesthetics
+4. Add an appropriate `scale_svg_*()` to inform ggplot2 how to map values to 
+   this parameter (which it will then insert into the SVG text)
+
+
+
+#### Define the base SVG
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generic SVG arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arrow_text <- '
+<svg viewBox="0 0 100 100">
+  <g transform="rotate(45 50 50)">
+    <line x1="10" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="30" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="70" x2="90" y2="50" stroke="black" stroke-width="2" />
+  </g>
+</svg>
+'
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw the arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+svg <- svg_to_rasterGrob(arrow_text)
+grid::grid.newpage()
+grid::grid.draw(svg)
+```
+
+#### Create parameterised SVG
+
+In order to create a responsive SVG that has values dynamically mapped
+in `ggplot2`, add named parameters in place of values in the SVG text.
+
+In this example the SVG transform to rotate the arrow is `rotate(45 50 50)`
+and this has been parameterised to `rotate({{angle}} 50 50 )`.
+
+
+```{r fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SVG arrow with controllable rotation angle
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arrow_text <- '
+<svg viewBox="0 0 100 100">
+  <g transform="rotate({{angle}} 50 50)">
+    <line x1="10" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="30" x2="90" y2="50" stroke="black" stroke-width="2" />
+    <line x1="70" y1="70" x2="90" y2="50" stroke="black" stroke-width="2" />
+  </g>
+</svg>
+'
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Test the rotation is changed as 'angle' is changed
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+angle <- -30
+final_svg <- glue::glue(arrow_text, .open = "{{", .close = "}}")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw the rotated arrow
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+svg <- svg_to_rasterGrob(final_svg)
+grid::grid.newpage()
+grid::grid.draw(svg)
+```
+
+
+#### Create a plot with rotatable SVG arrow
+
+```{r fig.width = 6, fig.height=4}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plausible vector field
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(13)
+value <- 360 * as.vector(ambient::normalise(ambient::noise_perlin(c(10, 10))))
+data  <- cbind(expand.grid(x=1:10, y=1:10), value)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use 'value' to control the arrow angle
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(data) + 
+  geom_raster(aes(x, y, fill = value)) + 
+  geom_point_svg(
+    aes(x, y, angle = I(value)), 
+    svg = arrow_text,
+    size = 10,
+    defaults = list(angle = 0)
+  ) + 
+  theme_bw() +
+  theme(legend.position = 'none') + 
+  scale_fill_viridis_c()
+```

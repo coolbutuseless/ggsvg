@@ -1,14 +1,13 @@
 Package: ggsvg
 Type: Package
-Title: Geom for SVG Images
-Version: 0.1.4
+Title: SVG Glyphs for ggplot
+Version: 0.1.5
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Authors@R: c(
-    person("Mike", "FC", , "mikefc@coolbutuseless.com", role = c("aut", "cre")),
-    person("Jeroen", "Ooms", , "jeroen@berkeley.edu", role = c("aut"),
-           comment = "Author of rsvg on which the interface to librsvg was based"))
-Description: Geom for SVG Images.
+    person("Mike", "FC", , "mikefc@coolbutuseless.com", role = c("aut", "cre"))
+    )
+Description: Use SVG graphics as glyphs when plotting points with ggplot2.
 License: MIT + file LICENSE
 URL: https://github.com/coolbutuseless/ggsvg
 BugReports: https://github.com/coolbutuseless/ggsvg/issues
@@ -22,5 +21,9 @@ Imports:
     scales,
     glue,
     stringr,
-    rsvg
-SystemRequirements: librsvg2
+    rsvg (>= 2.3.0)
+Suggests: 
+    knitr,
+    rmarkdown,
+    ambient
+VignetteBuilder: knitr

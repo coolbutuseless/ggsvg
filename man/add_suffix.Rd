@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{add_suffix}
 \alias{add_suffix}
-\title{Recursively update all names in a grobTree by adding a suffix}
+\title{Recursively update all names in a grobTree by adding a suffix to the name}
 \usage{
 add_suffix(x, suffix)
 }
@@ -15,5 +15,7 @@ add_suffix(x, suffix)
 new grobTree
 }
 \description{
-Recursively update all names in a grobTree by adding a suffix
+If two grobs in a plot have the same name, then it is not guaranteed that
+both will be drawn. This function ensures that every grob in a tree has
+a unique name.
 }

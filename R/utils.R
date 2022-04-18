@@ -1,5 +1,8 @@
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# NULL operator
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 '%||%' <- function(x, y) {
   if (is.null(x)) {
     y
@@ -10,7 +13,11 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Recursively update all names in a grobTree by adding a suffix
+#' Recursively update all names in a grobTree by adding a suffix to the name
+#'
+#' If two grobs in a plot have the same name, then it is not guaranteed that
+#' both will be drawn. This function ensures that every grob in a tree has
+#' a unique name.
 #'
 #' @param x grobTree
 #' @param suffix string
