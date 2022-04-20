@@ -48,7 +48,6 @@ draw_key_PointSVG <- function(data, params, size) {
 }
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Draw SVG
 #'
@@ -85,6 +84,27 @@ geom_point_svg <- function(mapping     = NULL,
                            show.legend = NA,
                            inherit.aes = TRUE,
                            defaults    = list()) {
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Resolve mapping with the internal aes() function (defined above)
+  # instead of ggplot's mapping
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  aes_call <- rlang::enquo(mapping)
+
+  if (rlang::is_call(aes_call) && rlang::call_name(aes_call) == 'aes') {
+    # Put 'my_aes()' into the quosure environment
+    en <- rlang::quo_get_env(aes_call)
+    en[['my_aes']] <- my_aes
+    aes_call <- rlang::quo_set_env(aes_call, en)
+
+    # replace the call to "aes()" with a call to "my_aes()"
+    ex <- rlang::quo_get_expr(aes_call)
+    ex[[1]] <- as.name("my_aes")
+    aes_call <- rlang::quo_set_expr(aes_call, ex)
+    mapping <- rlang::eval_tidy(aes_call)
+  }
+
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

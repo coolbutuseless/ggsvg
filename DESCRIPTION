@@ -1,7 +1,7 @@
 Package: ggsvg
 Type: Package
 Title: SVG Glyphs for ggplot
-Version: 0.1.5
+Version: 0.1.6
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Authors@R: c(
@@ -21,6 +21,7 @@ Imports:
     scales,
     glue,
     stringr,
+    rlang,
     rsvg (>= 2.3.0)
 Suggests: 
     knitr,

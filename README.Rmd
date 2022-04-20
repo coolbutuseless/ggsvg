@@ -123,14 +123,48 @@ so we have to explicitly nominate this as a fill by using
 `scale_svg_fill_discrete()`
 
 
-```{r}
+```{r message = FALSE}
 ggplot(mtcars) + 
   geom_point_svg(
-    aes(mpg, wt, "css=path:nth-child(3):fill" = as.factor(cyl)), 
+    aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))), 
     svg = car_svg, 
-    size = 8) + 
-  scale_svg_fill_discrete(aesthetics = "css=path:nth-child(3):fill") + 
-  theme_bw()
+    size = 8) +
+  theme_bw() + 
+  scale_svg_default()
+```
+
+
+
+## CSS Aesthetics 2
+
+```{r fig.height = 1.5}
+svg_text <- '
+  <svg viewBox="0 0 100 100 ">
+    <rect width="100" height="100" fill="#555555" 
+        style="stroke: black; stroke-width: 20"/>
+    <circle class="pale" cx="50" cy="50" r="20" fill="white" />
+  </svg>
+  '
+
+grid::grid.draw(svg_to_rasterGrob(svg_text))
+```
+
+
+```{r}
+p <- ggplot(mtcars) + 
+  geom_point_svg(
+    aes(
+      mpg, wt, 
+      css("rect", "stroke-width" = mpg), 
+      css("rect", stroke = as.factor(cyl))
+    ), 
+    svg = svg_text, 
+    size = 8) +
+  theme_bw() + 
+  scale_svg_default() +
+  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width"), range = c(5, 50))
+
+p
 ```
 
 
@@ -172,9 +206,7 @@ simple_text <- '
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Render SVG to a rasterGrob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-grob <- svg_to_rasterGrob(simple_text)
-grid::grid.newpage()
-grid::grid.draw(grob)
+grid::grid.draw(svg_to_rasterGrob(simple_text))
 ```
 
 

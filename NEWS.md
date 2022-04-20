@@ -1,4 +1,10 @@
 
+# ggsvg 0.1.6 2022-04-21
+
+* Wrapping CSS aesthetics a little with a `css()` helper
+* Added `scale_svg_default()` which will automatically determine default
+  scales for CSS aesthetics and add them to the plot
+
 # ggsvg 0.1.5 2022-04-18
 
 * Use `rsvg` v2.3.0+ for all SVG conversion

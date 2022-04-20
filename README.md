@@ -95,14 +95,49 @@ represents, so we have to explicitly nominate this as a fill by using
 ``` r
 ggplot(mtcars) + 
   geom_point_svg(
-    aes(mpg, wt, "css=path:nth-child(3):fill" = as.factor(cyl)), 
+    aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))), 
     svg = car_svg, 
-    size = 8) + 
-  scale_svg_fill_discrete(aesthetics = "css=path:nth-child(3):fill") + 
-  theme_bw()
+    size = 8) +
+  theme_bw() + 
+  scale_svg_default()
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+## CSS Aesthetics 2
+
+``` r
+svg_text <- '
+  <svg viewBox="0 0 100 100 ">
+    <rect width="100" height="100" fill="#555555" 
+        style="stroke: black; stroke-width: 20"/>
+    <circle class="pale" cx="50" cy="50" r="20" fill="white" />
+  </svg>
+  '
+
+grid::grid.draw(svg_to_rasterGrob(svg_text))
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+``` r
+p <- ggplot(mtcars) + 
+  geom_point_svg(
+    aes(
+      mpg, wt, 
+      css("rect", "stroke-width" = mpg), 
+      css("rect", stroke = as.factor(cyl))
+    ), 
+    svg = svg_text, 
+    size = 8) +
+  theme_bw() + 
+  scale_svg_default() +
+  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width"), range = c(5, 50))
+
+p
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 # Parameterising an SVG and using custom aesthetics
 
@@ -141,9 +176,7 @@ simple_text <- '
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Render SVG to a rasterGrob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-grob <- svg_to_rasterGrob(simple_text)
-grid::grid.newpage()
-grid::grid.draw(grob)
+grid::grid.draw(svg_to_rasterGrob(simple_text))
 ```
 
 <img src="man/figures/README-simple_svg-1.png" width="100%" />
@@ -178,7 +211,7 @@ grid::grid.newpage()
 grid::grid.draw(grob)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
@@ -203,7 +236,7 @@ ggplot(mtcars) +
 #> Warning: Using size for a discrete variable is not advised.
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ## Acknowledgements
 
