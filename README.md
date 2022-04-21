@@ -158,8 +158,6 @@ p <- ggplot(mtcars) +
   theme_bw() + 
   scale_svg_default() +
   scale_svg_size_continuous(aesthetics = css("rect", "stroke-width"), range = c(5, 50))
-#> target_type unknown: width
-#> target_type unknown: height
 
 p
 ```
@@ -258,8 +256,6 @@ ggplot(mtcars) +
     range = c(10, 45),
     guide = guide_legend(override.aes = list(size = 7))
   ) 
-#> target_type unknown: width
-#> target_type unknown: height
 #> Warning: Using size for a discrete variable is not advised.
 
 #> Warning: Using size for a discrete variable is not advised.
