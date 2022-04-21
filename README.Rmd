@@ -63,6 +63,29 @@ to convert SVG into an R raster object.
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
+## Note on non-standard aesthetics
+
+The `ggplot2` packages knows about a certain set of aesthetics: alpha, colour,
+fill, linetype, shape, size etc.    And it knows how to find appropriate default *scales*
+for each of these aesthetics in order to convert, say, numeric values in a data.frame
+into colours for points.
+
+In `ggsvg` novel aesthetics are being created during plot creation in order to 
+colour/style the SVG.  Since `ggplot2` won't know how to find an appropriate 
+default scale to go with these aesthetics, the user may name things carefully in 
+order to trigger some automatic detection within the ggsvg package.
+
+1. Name aesthetics to be of the form `[blah]_[type]` with an underscore
+    * e.g. "circle_radius", "rect_colour", "cat_fill"
+2. Apply a general default scale for these specially named aesthetics by 
+    adding `scale_svg_default()` to the plot.
+3. To get a *good* plot, you'll probably still need to add specific scales to
+   carefully control the value mapping e.g. `scale_svg_fill_brewer(aesthetics = "rect_fill")`
+
+
+If you ever encounter a target type (or CSS property) that isn't handled automatically
+(such that you *have* to use a specific `scale_svg_*()` function), then please
+file an issue on Github.
 
 
 # Using an existing SVG
@@ -224,15 +247,15 @@ i.e. `{{}}`
 parameterised_text <- '
   <svg viewBox="0 0 100 100 ">
     <rect width="100" height="100" fill="{{rect_colour}}" />
-    <circle cx="50" cy="50" r="{{radius}}" fill="white" />
+    <circle cx="50" cy="50" r="{{circle_radius}}" fill="white" />
   </svg>
   '
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Test the glue parameters
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rect_colour <- 'green'
-radius      <- 10
+rect_colour   <- 'green'
+circle_radius <- 10
 
 final_text <- glue::glue(parameterised_text, .open = "{{", .close = "}}")
 
@@ -247,21 +270,19 @@ grid::grid.draw(grob)
 ```{r}
 ggplot(mtcars) +
   geom_point_svg(
-    mapping  = aes(mpg, wt, radius=as.factor(cyl), rect_colour = disp),
+    mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
     svg      = parameterised_text,
     size     = 10,
-    defaults = list(rect_colour = 'black', radius = 40)
+    defaults = list(rect_colour = 'black', circle_radius = 40)
   ) +
   theme_bw() + 
   labs(title = "{ggsvg} Using SVG as points") + 
+  scale_svg_default() +
   scale_svg_size_discrete(
     aesthetics = 'radius', 
     range = c(10, 45),
     guide = guide_legend(override.aes = list(size = 7))
-  ) + 
-  scale_svg_colour_continuous(
-    aesthetics = 'rect_colour'
-  )
+  ) 
 ```
 
 

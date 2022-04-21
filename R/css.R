@@ -13,7 +13,7 @@
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 css_aes_property <- function(x) {
-  bits <- stringr::str_split(x, ":")[[1]]
+  bits <- stringr::str_split(x, "_")[[1]]
   if (length(bits) == 1) {
     return(character(0))
   }
@@ -37,7 +37,7 @@ css_aes_property <- function(x) {
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 css_aes_selector <- function(x) {
-  pos <- tail(as.vector(stringr::str_locate_all(x, ':')[[1]]), 1)
+  pos <- tail(as.vector(stringr::str_locate_all(x, '_')[[1]]), 1)
   res <- trimws(stringr::str_sub(x, start = 5, end = pos - 1))
 
   if (length(res) == 0 || nchar(res) == 0) {

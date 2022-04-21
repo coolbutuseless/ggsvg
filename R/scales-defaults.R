@@ -24,7 +24,7 @@ scale_ggsvg_default <- function(p) {
     names(layer$geom$default_aes)
   })
   all_aes <- unlist(all_aes)
-  all_aes <- grep(":", all_aes, value = TRUE)
+  all_aes <- grep("_", all_aes, value = TRUE)
 
   # have a good guess on what the target type is e.g. fill/scale/linetype
   #    based upon the last :type
@@ -46,7 +46,7 @@ scale_ggsvg_default <- function(p) {
   # maybe:  css("circle", fill=as.factor(cyl), `stroke_width`=disp)
 
 
-  this_aes <- all_aes[[1]]
+  # this_aes <- all_aes[[1]]
 
   for (this_aes in all_aes) {
     # message("TODO: auto gen scale in plot_env: ", this_aes)
@@ -55,13 +55,14 @@ scale_ggsvg_default <- function(p) {
 
     if (target_type %in% c('color', 'colour', 'stroke', 'fill')) {
       target_type <- 'fill'
-    } else if (target_type %in% c('stroke-width')) {
+    } else if (target_type %in% c('stroke-width', 'radius', 'angle', 'rotation')) {
       target_type <- 'size'
     } else {
       # message("target_type unknown: ", target_type)
       target_type <- ''
     }
 
+    if (target_type == '') next
 
     # @param ggsvg_scale_name the name of the ggsvg scale
     #        e.g. `scale_circle .big_fill_discrete`

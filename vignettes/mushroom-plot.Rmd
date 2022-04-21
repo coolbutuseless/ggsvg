@@ -58,13 +58,13 @@ Add `{{}}` glue string locations and test it out
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 semicircles_svg <- '
 <svg width="100" height="100">
-  <path d="M {{50-radius_top}},50 a{{radius_top}},{{radius_top}} 0 1,1 {{2*radius_top}},0" fill="#E79A16" />
-  <path d="M {{50-radius_bot}},50 a{{radius_bot}},{{radius_bot}} 0 0,0 {{2*radius_bot}},0" fill="#D78590" />
+  <path d="M {{50-top_radius}},50 a{{top_radius}},{{top_radius}} 0 1,1 {{2*top_radius}},0" fill="#E79A16" />
+  <path d="M {{50-bot_radius}},50 a{{bot_radius}},{{bot_radius}} 0 0,0 {{2*bot_radius}},0" fill="#D78590" />
 </svg>
 '
 
-radius_top <- 40
-radius_bot <- 30
+top_radius <- 40
+bot_radius <- 30
 
 final_svg <- glue::glue(semicircles_svg, .open = "{{", .close = "}}")
 
@@ -87,12 +87,12 @@ data <- data.frame(
 
 ggplot(data) + 
   geom_point_svg(
-    aes(x, y, radius_top = q1, radius_bot = q2), 
+    aes(x, y, top_radius = q1, bot_radius = q2), 
     svg = semicircles_svg,
     size = 10,
-    defaults = list(radius_top = 50, radius_bot = 50)) +
-  scale_svg_size('radius_top', range = c(30, 50), guide = 'none') + 
-  scale_svg_size('radius_bot', range = c(30, 50), guide = 'none') + 
+    defaults = list(top_radius = 50, bot_radius = 50)) +
+  scale_svg_size('top_radius', range = c(30, 50), guide = 'none') + 
+  scale_svg_size('bot_radius', range = c(30, 50), guide = 'none') + 
   theme_bw() +
   labs(
     title = "{ggsvg} Multiple continuous aesthetics"

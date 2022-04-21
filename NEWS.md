@@ -1,4 +1,11 @@
 
+
+# ggsvg 0.1.7 2022-04-21
+
+* Unify the preferred naming for glue-parameterised SVG with naming required for
+  CSS aesthetics.   i.e.  `[blah]_[type]`.  This is so ggsvg can make better guesses on 
+  the default scale for any novel aesthetic.
+
 # ggsvg 0.1.6 2022-04-21
 
 * Wrapping CSS aesthetics a little with a `css()` helper

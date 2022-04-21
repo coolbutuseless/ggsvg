@@ -61,12 +61,7 @@ arrow_text <- '
 </svg>
 '
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw the arrow
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-svg <- svg_to_rasterGrob(arrow_text)
-grid::grid.newpage()
-grid::grid.draw(svg)
+grid::grid.draw( svg_to_rasterGrob(arrow_text) )
 ```
 
 #### Create parameterised SVG
@@ -84,7 +79,7 @@ and this has been parameterised to `rotate({{angle}} 50 50 )`.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 arrow_text <- '
 <svg viewBox="0 0 100 100">
-  <g transform="rotate({{angle}} 50 50)">
+  <g transform="rotate({{arrow_angle}} 50 50)">
     <line x1="10" y1="50" x2="90" y2="50" stroke="black" stroke-width="2" />
     <line x1="70" y1="30" x2="90" y2="50" stroke="black" stroke-width="2" />
     <line x1="70" y1="70" x2="90" y2="50" stroke="black" stroke-width="2" />
@@ -95,16 +90,10 @@ arrow_text <- '
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Test the rotation is changed as 'angle' is changed
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-angle <- -30
+arrow_angle <- -30
 final_svg <- glue::glue(arrow_text, .open = "{{", .close = "}}")
 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw the rotated arrow
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-svg <- svg_to_rasterGrob(final_svg)
-grid::grid.newpage()
-grid::grid.draw(svg)
+grid::grid.draw( svg_to_rasterGrob(final_svg) )
 ```
 
 
@@ -124,10 +113,10 @@ data  <- cbind(expand.grid(x=1:10, y=1:10), value)
 ggplot(data) + 
   geom_raster(aes(x, y, fill = value)) + 
   geom_point_svg(
-    aes(x, y, angle = I(value)), 
+    aes(x, y, arrow_angle = I(value)), 
     svg = arrow_text,
     size = 10,
-    defaults = list(angle = 0)
+    defaults = list(arrow_angle = 0)
   ) + 
   theme_bw() +
   theme(legend.position = 'none') + 

@@ -45,7 +45,7 @@ css <- function(selector, ...) {
     property <- stringr::str_sub(property, 2, -2)
   }
 
-  aes_name <- paste0("css=", trimws(selector), ":", trimws(property))
+  aes_name <- paste0("css=", trimws(selector), "_", trimws(property))
 
   if (char_only) {
     return(aes_name)

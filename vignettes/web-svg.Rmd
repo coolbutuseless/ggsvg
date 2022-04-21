@@ -45,9 +45,7 @@ car_svg <- paste(readLines("svg/car-svgrepo-com.svg"), collapse = "\n")
 
 
 ```{r fig.height=1}
-car_grob <- svg_to_rasterGrob(car_svg)
-grid::grid.newpage()
-grid::grid.draw(car_grob)
+grid::grid.draw( svg_to_rasterGrob(car_svg) )
 ```
 
 
