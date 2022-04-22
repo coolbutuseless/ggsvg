@@ -21,6 +21,8 @@ parameter/value can be linked to any aesthetic which makes sense e.g. an
 aesthetic may be used to control the corner radius on a rounded
 rectangle.
 
+### Note: `{ggsvg}` is currently undergoing rapid development. Keep an eye on this README and the vignettes to see examples of current usage.
+
 ## What’s in the box
 
 -   `geom_point_svg()` is equivalent to `geom_point()` except it also
@@ -41,7 +43,16 @@ to convert SVG into an R raster object.
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
-## Note on non-standard aesthetics
+## Note on SVG2 CSS support in librsvg
+
+SVG2 add support for CSS styling of geometry properties e.g. styling
+‘rx’ on `rect` elements.
+
+`librsvg` support for SVG2 is good, but still evolving rapidly as of
+v2.54.0. Install the latest version of librsvg (and perhaps build
+`{rsvg}` from source) in order to get the best CSS support.
+
+## Note on preferred names for non-standard aesthetics
 
 The `ggplot2` packages knows about a certain set of aesthetics: alpha,
 colour, fill, linetype, shape, size etc. And it knows how to find
@@ -62,9 +73,14 @@ ggsvg package.
     scales to carefully control the value mapping
     e.g. `scale_svg_fill_brewer(aesthetics = "rect_fill")`
 
-If you ever encounter a target type (or CSS property) that isn’t handled
-automatically (such that you *have* to use a specific `scale_svg_*()`
-function), then please file an issue on Github.
+If you ever encounter a target type colour or numeric CSS property that
+isn’t handled automatically (such that you *have* to use a specific
+`scale_svg_*()` function), then please file an issue on Github.
+
+Note that any CSS properties that are specified as text
+(e.g. `font-family`) do not currently have any built-in scale. Instead
+you will have to specify the possible values for such a scale using
+e.g. `scale_svg_discrete_manual()`.
 
 # Using an existing SVG
 
@@ -83,7 +99,7 @@ car_svg <- paste(readLines(car_url), collapse = "\n")
 ```
 
 ``` r
-grid::grid.draw(svg_to_rasterGrob(car_svg))
+grid::grid.draw( svg_to_rasterGrob(car_svg) )
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
@@ -95,6 +111,14 @@ ggplot(mtcars) +
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+
+``` r
+ggplot(mtcars) + 
+  geom_point_svg(aes(mpg, wt, size = mpg), svg = car_svg) + 
+  theme_bw()
+```
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 # Using “CSS Aesthetics” to style an existing SVG
 
@@ -120,14 +144,16 @@ represents, so we have to explicitly nominate this as a fill by using
 ``` r
 ggplot(mtcars) + 
   geom_point_svg(
-    aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))), 
-    svg = car_svg, 
-    size = 8) +
+    # aes(mpg, wt, size = mpg, fill = as.factor(cyl)), 
+    aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))),
+    size = 8,
+    svg = car_svg
+  ) +
   theme_bw() + 
   scale_svg_default()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## CSS Aesthetics 2
 
@@ -140,10 +166,10 @@ svg_text <- '
   </svg>
   '
 
-grid::grid.draw(svg_to_rasterGrob(svg_text))
+grid::grid.draw( svg_to_rasterGrob(svg_text) )
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ``` r
 p <- ggplot(mtcars) + 
@@ -162,7 +188,7 @@ p <- ggplot(mtcars) +
 p
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 # Parameterising an SVG and using custom aesthetics
 
@@ -197,11 +223,7 @@ simple_text <- '
   </svg>
   '
 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Render SVG to a rasterGrob
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-grid::grid.draw(svg_to_rasterGrob(simple_text))
+grid::grid.draw( svg_to_rasterGrob(simple_text) )
 ```
 
 <img src="man/figures/README-simple_svg-1.png" width="100%" />
@@ -231,12 +253,10 @@ circle_radius <- 10
 
 final_text <- glue::glue(parameterised_text, .open = "{{", .close = "}}")
 
-grob <- svg_to_rasterGrob(final_text)
-grid::grid.newpage()
-grid::grid.draw(grob)
+grid::grid.draw( svg_to_rasterGrob(final_text) )
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
@@ -261,7 +281,7 @@ ggplot(mtcars) +
 #> Warning: Using size for a discrete variable is not advised.
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ## Acknowledgements
 

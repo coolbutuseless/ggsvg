@@ -7,13 +7,15 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 draw_key_PointSVG <- function(data, params, size) {
 
-  # print(data)
-
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # SVG
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   svg      <- data$svg[[1]]
   svg      <- glue::glue_data(data[1,], svg, .open = "{{", .close = "}}")
 
-  # CSS
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Map any CSS aesthetics
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   css <- NULL
 
   css_names_idx <- vapply(colnames(data), is_valid_css_aes, logical(1))
@@ -30,14 +32,45 @@ draw_key_PointSVG <- function(data, params, size) {
   }
 
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Create GROB
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   svg_grob <- svg_to_rasterGrob(svg, css = css)
 
-  # Figure out display size in legned
-  w <- data$size[[1]] / size[[1]]
-  h <- data$size[[1]] / size[[1]]
+  # print("-----------------------------------------------------------------")
+  # print(size)
+  # data$svg <- NULL
+  # print(data)
+  # params$svg <- NULL
+  # print(unlist(params))
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Figure out display size in legend.
+  #
+  # This is tricky because an SVG has no natural size like points in
+  # R.  So it's difficult to display them at an absolute size which makes sense.
+  #
+  # A bit of a heuristic to determine what size the SVG should be.
+  # If the actual size is the same as the sentinel size of 0.999, then
+  # it means that the SVG should displayed as unscaled.
+  #
+  # Alternately, if the user is not doing any size mapping in 'aes',
+  # then the SVG should also be displayed as unscaled.
+  #
+  # Otherwise scale the SVG size by the size of the legend box it is to
+  # displayed in.
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  if (data$size[[1]] == 0.999 || !isTRUE(params$mapped_size)) {
+    w <- h <- 0.9  # 0.9 npc
+  } else {
+    w <- 0.9 * data$size[[1]] / size[[1]]
+    h <- 0.9 * data$size[[1]] / size[[1]]
+  }
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Set size in viewport
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   svg_grob$vp <- grid::viewport(
     width  = w,
     height = h
@@ -95,8 +128,9 @@ geom_point_svg <- function(mapping     = NULL,
   if (rlang::is_call(aes_call) && rlang::call_name(aes_call) == 'aes') {
     # Put 'my_aes()' into the quosure environment
     en <- rlang::quo_get_env(aes_call)
-    en[['my_aes']] <- my_aes
-    aes_call <- rlang::quo_set_env(aes_call, en)
+    this_env <- new.env(parent = en)
+    this_env[['my_aes']] <- my_aes
+    aes_call <- rlang::quo_set_env(aes_call, this_env)
 
     # replace the call to "aes()" with a call to "my_aes()"
     ex <- rlang::quo_get_expr(aes_call)
@@ -183,6 +217,7 @@ geom_point_svg <- function(mapping     = NULL,
     inherit.aes = inherit.aes,
     params      = list(
       na.rm = na.rm,
+      mapped_size = 'size' %in% names(mapping),
       ...
     )
   )
@@ -227,7 +262,7 @@ create_new_GeomPointSVG <- function() {
     default_aes = ggplot2::aes(
       shape      = 19,
       colour     = "black",
-      size       = 1.5,
+      size       = 0.999,  # this is a sentinel value used during draw_key
       fill       = 'black',
       alpha      = 1,
       stroke     = 0.5,
@@ -236,8 +271,7 @@ create_new_GeomPointSVG <- function() {
       svg_height = NULL
     ),
 
-
-    draw_panel = function(data, panel_params, coord, na.rm = FALSE) {
+    draw_panel = function(data, panel_params, coord, na.rm = FALSE, mapped_size = NULL) {
 
       debug  <- isTRUE(getOption("GGSVG_DEBUG", FALSE))
       coords <- coord$transform(data, panel_params)
@@ -299,7 +333,7 @@ create_new_GeomPointSVG <- function() {
 
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          if (debug) print(svg)
+          # if (debug) print(svg)
 
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           # Unpack CSS if any
@@ -312,6 +346,10 @@ create_new_GeomPointSVG <- function() {
               css <- c(css, this_css)
             }
             css <- paste(css, collapse="\n")
+
+            if (debug && i == 1) {
+              cat(css, "\n")
+            }
           }
 
 

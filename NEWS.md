@@ -1,5 +1,14 @@
 
 
+# ggsvg 0.1.8 2022-04-22
+
+* Improved sizing of SVG in legends.  Drastically reduced the number of 
+  situations that need to use `guides()` to adjust the size of legend
+  elements
+* Improved the override of `aes()` parsing within `geom_point_svg()` which 
+  means that `my_aes()` is no longer dumped into the global environment.
+* Expanded the number of CSS properties that get a reasonable default scale
+
 # ggsvg 0.1.7 2022-04-21
 
 * Unify the preferred naming for glue-parameterised SVG with naming required for

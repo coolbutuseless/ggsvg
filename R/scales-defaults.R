@@ -1,16 +1,36 @@
 
+css_colour_properties <- c(
+  'color', 'colour', 'stroke', 'fill', 'stop-color', 'flood-color',
+  'lighting-color'
+)
+css_numeric_properties <- c(
+  'stroke-width', 'radius', 'angle', 'rotation',
+  'accent-height', 'opacity', 'stop-opacity', 'fill-opacity',
+  'cx', 'cy', 'r', # circle
+  'rx', 'ry', # ellipse
+  'height', 'width',
+  'x', 'y'
+)
+
+# needs a "px"
+css_pixel_properties <- c(
+  'letter-spacing'
+)
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Auto aesthetics for those marked with a ":"
 #'
 #' @param p ggplot object
+#' @param verbose logical.  Be verbose about what scales are being created.
+#'        default: FALSE
 #'
 #' @return ggplot object with default scales added to the plot environment
 #'         for any aesthetic which nominates its type
 #'
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-scale_ggsvg_default <- function(p) {
+scale_ggsvg_default <- function(p, verbose = FALSE) {
 
   # Override the plot environment to be a totally fresh environment
   # that we can write stuff to.
@@ -53,12 +73,14 @@ scale_ggsvg_default <- function(p) {
 
     target_type <- css_aes_property(this_aes)
 
-    if (target_type %in% c('color', 'colour', 'stroke', 'fill')) {
+    if (target_type %in% css_colour_properties) {
       target_type <- 'fill'
-    } else if (target_type %in% c('stroke-width', 'radius', 'angle', 'rotation')) {
+    } else if (target_type %in% css_numeric_properties) {
       target_type <- 'size'
     } else {
-      # message("target_type unknown: ", target_type)
+      if (verbose) {
+        message("target_type unknown: ", target_type)
+      }
       target_type <- ''
     }
 
@@ -85,10 +107,14 @@ scale_ggsvg_default <- function(p) {
       ggsvg_scale_name <- paste("scale_svg", target_type, input_type, sep="_")
 
       if (exists(ggsvg_scale_name)) {
-        # message(this_aes, " :: ", ggsvg_scale_name, "  -->>  ", ggplot_scale_name)
+        if (verbose) {
+          message(this_aes, " :: ", ggsvg_scale_name, "  -->>  ", ggplot_scale_name)
+        }
         p$plot_env[[ggplot_scale_name]] <- create_scale_func(ggsvg_scale_name, this_aes)
       } else {
-        # message("ggsvg scale not found: ", ggsvg_scale_name)
+        if (verbose) {
+          message("ggsvg scale not found: ", ggsvg_scale_name)
+        }
       }
     }
 

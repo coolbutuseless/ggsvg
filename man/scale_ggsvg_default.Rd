@@ -4,10 +4,13 @@
 \alias{scale_ggsvg_default}
 \title{Auto aesthetics for those marked with a ":"}
 \usage{
-scale_ggsvg_default(p)
+scale_ggsvg_default(p, verbose = FALSE)
 }
 \arguments{
 \item{p}{ggplot object}
+
+\item{verbose}{logical.  Be verbose about what scales are being created.
+default: FALSE}
 }
 \value{
 ggplot object with default scales added to the plot environment
