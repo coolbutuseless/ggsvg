@@ -156,7 +156,6 @@ represents, so we have to explicitly nominate this as a fill by using
 ``` r
 p <- ggplot(mtcars) + 
   geom_point_svg(
-    # aes(mpg, wt, size = mpg, fill = as.factor(cyl)), 
     aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))),
     size = 8,
     svg = car_svg

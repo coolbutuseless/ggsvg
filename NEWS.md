@@ -1,6 +1,6 @@
 
 
-# ggsvg 0.1.8 2022-04-23
+# ggsvg 0.1.9 2022-04-23
 
 * Initial support for formatting the value for CSS aesthetics e.g. if it 
   needs a 'px' or '%' suffix, or some other bespoke formatting.

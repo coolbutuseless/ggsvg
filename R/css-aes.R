@@ -13,9 +13,9 @@
 #' @param ... single named argument of the form \code{css_property = value}.
 #'        The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}
 #' @param format a string specifying the formatting for the CSS property value.
-#'        Default: NULL is equivalent to ".x" and will insert just the bare value.
+#'        Default: NULL is equivalent to "[x]" and will insert just the bare value.
 #'        For example, if the CSS property required an explicit
-#'        "px" suffix on the value, the format would be ".xpx"
+#'        "px" suffix on the value, the format would be "[x]px"
 #'
 #' @return length-1 named list where the name is the full name of this CSS
 #'         aesthetic, and the value is the unevaluated value passed in to the ...
@@ -26,7 +26,7 @@
 #' css("circle .big", stroke = as.factor(cyl))
 #'
 #' # circle .bit { stroke = XXpx; }
-#' css("circle .big", stroke = as.factor(cyl), format = ".xpx")
+#' css("circle .big", stroke = as.factor(cyl), format = "[x]px")
 #' }
 #'
 #' @import rlang

@@ -23,7 +23,7 @@ parse_aes_type <- function(x) {
   } else if (n == 3) {
     selector <- bits[[2]]
     property <- bits[[3]]
-    format   <- ".x"
+    format   <- "[x]"
   }
 
   if (is_css && n >= 3 && nchar(selector) > 0 && nchar(property) > 0 && nchar(format) > 0) {
@@ -81,7 +81,7 @@ css_aes_to_glue_string <- function(x) {
   stopifnot(is_valid_css_aes(x))
   bits <- parse_aes_type(x)
 
-  glue_format <- gsub(".x", paste0("{{`", x, "`}}"), bits$format, fixed = TRUE)
+  glue_format <- gsub("[x]", paste0("{{`", x, "`}}"), bits$format, fixed = TRUE)
 
   sprintf("%s {%s : %s !important; }", bits$selector, bits$property, glue_format)
 }
@@ -109,9 +109,9 @@ if (FALSE) {
 
   library(grid)
 
-  `css_.big_stroke-width_.xpx` <- 999
-  x <- "css_.big_stroke-width_.xpx"
-  x <- css(".big", "stroke-width", format = ".xpx")
+  `css_.big_stroke-width_[x]px` <- 999
+  x <- "css_.big_stroke-width_[x]px"
+  x <- css(".big", "stroke-width", format = "[x]px")
   x
 
   is_valid_css_aes(x)
