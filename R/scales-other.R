@@ -74,6 +74,9 @@ scale_svg_alpha <- function (aesthetics,
                              ...,
                              range = c(0.1, 1))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "alpha_c",
@@ -91,6 +94,9 @@ scale_svg_alpha_binned <- function (aesthetics,
                                     ...,
                                     range = c(0.1, 1))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "alpha_b",
@@ -108,6 +114,9 @@ scale_svg_alpha_continuous <- function (aesthetics,
                                         ...,
                                         range = c(0.1, 1))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "alpha_c",
@@ -124,6 +133,9 @@ scale_svg_alpha_continuous <- function (aesthetics,
 scale_svg_alpha_discrete <- function (aesthetics,
                                       ...)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   warning("Using alpha for a discrete variable is not advised.", call. = FALSE)
   scale_svg_alpha_ordinal(...)
 }
@@ -137,6 +149,9 @@ scale_svg_alpha_identity <- function (aesthetics,
                                       ...,
                                       guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "identity",
@@ -159,6 +174,9 @@ scale_svg_alpha_manual <- function (aesthetics,
                                     breaks   = waiver(),
                                     na.value = NA)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -177,6 +195,9 @@ scale_svg_alpha_ordinal <- function (aesthetics,
                                      ...,
                                      range = c(0.1, 1))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "alpha_d",
@@ -194,6 +215,9 @@ scale_svg_colour_binned <- function (aesthetics,
                                      ...,
                                      type = getOption("ggplot2.binned.colour"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type_fallback <- getOption("ggplot2.continuous.colour",
                              default = "gradient")
   if (is.function(type_fallback)) {
@@ -222,6 +246,9 @@ scale_svg_colour_brewer <- function (aesthetics,
                                      palette   = 1,
                                      direction = 1)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "brewer",
@@ -239,6 +266,9 @@ scale_svg_colour_continuous <- function (aesthetics,
                                          ...,
                                          type = getOption("ggplot2.continuous.colour"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- type %||% "gradient"
   if (identical(type, "gradient")) {
     scale_svg_colour_gradient(aesthetics = aesthetics, ...)
@@ -260,6 +290,9 @@ scale_svg_colour_discrete <- function (aesthetics,
                                        ...,
                                        type = getOption("ggplot2.discrete.colour"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   # maybe try: scale_svg_colour_hue   mikefc 2021-12-22
   scale_svg_colour_qualitative(aesthetics = aesthetics, ..., type = type)
 }
@@ -277,6 +310,9 @@ scale_svg_colour_fermenter <- function (aesthetics,
                                         na.value  = "grey50",
                                         guide     = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
     warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead", call. = FALSE)
@@ -302,6 +338,9 @@ scale_svg_colour_grey <- function (aesthetics,
                                    end      = 0.8,
                                    na.value = "red")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "grey",
@@ -325,6 +364,9 @@ scale_svg_colour_hue <- function (aesthetics,
                                   direction = 1,
                                   na.value  = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "hue",
@@ -343,6 +385,9 @@ scale_svg_colour_identity <- function (aesthetics,
                                        ...,
                                        guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "identity",
@@ -364,6 +409,9 @@ scale_svg_colour_manual <- function (aesthetics,
                                      breaks   = waiver(),
                                      na.value = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -382,6 +430,9 @@ scale_svg_colour_ordinal <- function (aesthetics,
                                       ...,
                                       type = getOption("ggplot2.ordinal.colour", getOption("ggplot2.ordinal.fill")))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- type %||% scale_svg_colour_viridis_d
   if (is.function(type)) {
     type(...)
@@ -410,6 +461,9 @@ scale_svg_colour_qualitative <- function (aesthetics,
                                           direction = 1,
                                           na.value  = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "qualitative",
@@ -432,6 +486,9 @@ scale_svg_colour_steps <- function (aesthetics,
                                     na.value = "grey50",
                                     guide    = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "steps",
@@ -457,6 +514,9 @@ scale_svg_colour_steps2 <- function (aesthetics,
                                      na.value = "grey50",
                                      guide    = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "steps2",
@@ -482,6 +542,9 @@ scale_svg_colour_stepsn <- function (aesthetics,
                                      guide    = "coloursteps",
                                      colors)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   colours <- if (missing(colours))
     colors
   else colours
@@ -513,6 +576,9 @@ scale_svg_colour_viridis_b <- function (aesthetics,
                                         na.value  = "grey50",
                                         guide     = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "viridis_b",
@@ -536,6 +602,9 @@ scale_svg_colour_viridis_d <- function (aesthetics,
                                         direction = 1,
                                         option = "D")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "viridis_d",
@@ -553,6 +622,9 @@ scale_svg_continuous_identity <- function (aesthetics,
                                            ...,
                                            guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "identity",
@@ -570,6 +642,9 @@ scale_svg_continuous_identity <- function (aesthetics,
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 scale_svg_discrete_identity <- function (aesthetics, ..., guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "identity",
@@ -590,6 +665,9 @@ scale_svg_discrete_manual <- function (aesthetics,
                                        values,
                                        breaks = waiver())
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -606,6 +684,9 @@ scale_svg_discrete_manual <- function (aesthetics,
 scale_svg_fill_binned <- function (aesthetics,
                                    ..., type = getOption("ggplot2.binned.fill"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
     type_fallback <- getOption("ggplot2.continuous.fill",
                                default = "gradient")
     if (is.function(type_fallback)) {
@@ -634,6 +715,9 @@ scale_svg_fill_brewer <- function (aesthetics,
                                    palette   = 1,
                                    direction = 1)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "brewer",
@@ -650,6 +734,9 @@ scale_svg_fill_brewer <- function (aesthetics,
 scale_svg_fill_continuous <- function (aesthetics,
                                        ..., type = getOption("ggplot2.continuous.fill"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- type %||% "gradient"
   if (identical(type, "gradient")) {
     scale_svg_fill_gradient(aesthetics = aesthetics, ...)
@@ -671,6 +758,9 @@ scale_svg_fill_discrete <- function (aesthetics,
                                      ...,
                                      type = getOption("ggplot2.discrete.fill"))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   # type <- type %||% scale_fill_hue
   # scale_svg_fill_qualitative(aesthetics = aesthetics, ..., type = type)
   scale_svg_fill_hue(aesthetics = aesthetics, ...)
@@ -689,6 +779,9 @@ scale_svg_fill_fermenter <- function (aesthetics,
                                       na.value  = "grey50",
                                       guide     = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
     warning("Using a discrete colour palette in a binned scale.\n  Consider using type = \"seq\" or type = \"div\" instead", call. = FALSE)
@@ -713,6 +806,9 @@ scale_svg_fill_grey <- function (aesthetics,
                                  end      = 0.8,
                                  na.value = "red")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "grey",
@@ -736,6 +832,9 @@ scale_svg_fill_hue <- function (aesthetics,
                                 direction = 1,
                                 na.value  = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "hue",
@@ -754,6 +853,9 @@ scale_svg_fill_identity <- function (aesthetics,
                                      ...,
                                      guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "identity",
@@ -774,6 +876,9 @@ scale_svg_fill_manual <- function (aesthetics,
                                    breaks   = waiver(),
                                    na.value = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -792,6 +897,9 @@ scale_svg_fill_ordinal <- function (aesthetics,
                                     ...,
                                     type = getOption("ggplot2.ordinal.fill", getOption("ggplot2.ordinal.colour")))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- type %||% scale_svg_fill_viridis_d
   if (is.function(type)) {
     type(...)
@@ -821,6 +929,9 @@ scale_svg_fill_qualitative <- function (aesthetics,
                                         direction = 1,
                                         na.value  = "grey50")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "qualitative",
@@ -843,6 +954,9 @@ scale_svg_fill_steps <- function (aesthetics,
                                   na.value = "grey50",
                                   guide    = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "steps",
@@ -868,6 +982,9 @@ scale_svg_fill_steps2 <- function (aesthetics,
                                    na.value = "grey50",
                                    guide    = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "steps2",
@@ -893,6 +1010,9 @@ scale_svg_fill_stepsn <- function (aesthetics,
                                    guide    = "coloursteps",
                                    colors)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   colours <- if (missing(colours))
     colors
   else colours
@@ -924,6 +1044,9 @@ scale_svg_fill_viridis_b <- function (aesthetics,
                                       na.value  = "grey50",
                                       guide     = "coloursteps")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "viridis_b",
@@ -947,6 +1070,9 @@ scale_svg_fill_viridis_d <- function (aesthetics,
                                       direction = 1,
                                       option    = "D")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "viridis_d",
@@ -964,6 +1090,9 @@ scale_svg_linetype <- function (aesthetics,
                                 ...,
                                 na.value = "blank")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "linetype_d",
@@ -982,6 +1111,9 @@ scale_svg_linetype_binned <- function (aesthetics,
                                        ...,
                                        na.value = "blank")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "linetype_b",
@@ -1010,6 +1142,9 @@ scale_svg_linetype_discrete <- function (aesthetics,
                                          ...,
                                          na.value = "blank")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "linetype_d",
@@ -1028,6 +1163,9 @@ scale_svg_linetype_identity <- function (aesthetics,
                                          ...,
                                          guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::discrete_scale(
     aesthetics,
     "identity",
@@ -1049,6 +1187,9 @@ scale_svg_linetype_manual <- function (aesthetics,
                                        breaks   = waiver(),
                                        na.value = "blank")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -1072,6 +1213,9 @@ scale_svg_radius <- function (aesthetics,
                               trans  = "identity",
                               guide  = "legend")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "radius",
@@ -1099,6 +1243,9 @@ scale_svg_size <- function (aesthetics,
                             trans  = "identity",
                             guide  = "legend")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "area",
@@ -1121,6 +1268,9 @@ scale_svg_size_area <- function (aesthetics,
                                  ...,
                                  max_size = 6)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "area",
@@ -1146,6 +1296,9 @@ scale_svg_size_binned <- function (aesthetics,
                                    trans       = "identity",
                                    guide       = "bins")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "area_b",
@@ -1170,6 +1323,9 @@ scale_svg_size_binned_area <- function (aesthetics,
                                         ...,
                                         max_size = 6)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::binned_scale(
     aesthetics,
     "area_b",
@@ -1193,6 +1349,9 @@ scale_svg_size_continuous <- function (aesthetics,
                                        trans  = "identity",
                                        guide  = "legend")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "area",
@@ -1226,6 +1385,9 @@ scale_svg_size_identity <- function (aesthetics,
                                      ...,
                                      guide = "none")
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "identity",
@@ -1247,6 +1409,9 @@ scale_svg_size_manual <- function (aesthetics,
                                    breaks   = waiver(),
                                    na.value = NA)
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   manual_scale(
     aesthetics,
     values,
@@ -1265,6 +1430,9 @@ scale_svg_size_ordinal <- function (aesthetics,
                                     ...,
                                     range = c(2, 6))
 {
+
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   force(range)
 
   ggplot2::discrete_scale(

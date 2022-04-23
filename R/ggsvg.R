@@ -173,12 +173,27 @@ geom_point_svg <- function(mapping     = NULL,
   # Throw an error if none given
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   unhandled_aes <- unknown_aes[!unknown_aes %in% names(defaults)]
-  css_aes       <- unhandled_aes[ startsWith(unhandled_aes, "css=")]
-  unhandled_aes <- unhandled_aes[!startsWith(unhandled_aes, "css=")]
-  if (length(unhandled_aes) > 0) {
-    stop("Please set a `defaults` value for: ", deparse1(unhandled_aes))
-  }
+  css_aes       <- unhandled_aes[ startsWith(unhandled_aes, "css_")]
+  unhandled_aes <- unhandled_aes[!startsWith(unhandled_aes, "css_")]
 
+  colour_types <- c(
+    'color', 'colour', 'stroke', 'fill', 'stop-color', 'flood-color',
+    'lighting-color'
+  )
+
+
+  for (ua in unhandled_aes) {
+    # message("Handle the unhandled: ", ua)
+    bits <- parse_aes_type(ua)
+    if (bits$type == 'unknown') {
+      warning("No `defaults` value set for: ", deparse1(ua), "using '1'")
+      this_geom$default_aes[[ua]] <- 1
+    } else if (bits$property %in% colour_types) {
+      this_geom$default_aes[[ua]] <- 'black'
+    } else {
+      this_geom$default_aes[[ua]] <- 1
+    }
+  }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Add in defaults for CSS aesthetics
@@ -279,7 +294,8 @@ create_new_GeomPointSVG <- function() {
 
       if (debug) {
         message("GeomPointSVG$draw_panel() 'coords' data.frame names")
-        print(names(coords))
+        # print(names(coords))
+        print(coords)
       }
 
       is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
@@ -333,7 +349,7 @@ create_new_GeomPointSVG <- function() {
 
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-          # if (debug) print(svg)
+          if (debug) print(svg)
 
           #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           # Unpack CSS if any

@@ -4,13 +4,18 @@
 \alias{css}
 \title{Transform a CSS aesthetic selector into its canonical form for ggsvg}
 \usage{
-css(selector, ...)
+css(selector, ..., format = NULL)
 }
 \arguments{
 \item{selector}{CSS selector as a single character string e.g. "circle .big"}
 
 \item{...}{single named argument of the form \code{css_property = value}.
 The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}}
+
+\item{format}{a string specifying the formatting for the CSS property value.
+Default: NULL is equivalent to ".x" and will insert just the bare value.
+For example, if the CSS property required an explicit
+"px" suffix on the value, the format would be ".xpx"}
 }
 \value{
 length-1 named list where the name is the full name of this CSS
@@ -24,7 +29,11 @@ the form \code{scale_svg_*()}.
 }
 \examples{
 \dontrun{
+# circle .bit { stroke = XX; }
 css("circle .big", stroke = as.factor(cyl))
+
+# circle .bit { stroke = XXpx; }
+css("circle .big", stroke = as.factor(cyl), format = ".xpx")
 }
 
 }

@@ -71,7 +71,11 @@ scale_ggsvg_default <- function(p, verbose = FALSE) {
   for (this_aes in all_aes) {
     # message("TODO: auto gen scale in plot_env: ", this_aes)
 
-    target_type <- css_aes_property(this_aes)
+    aes_bits <- parse_aes_type(this_aes)
+
+    if (aes_bits$type == 'unknown') next
+
+    target_type <- aes_bits$property
 
     if (target_type %in% css_colour_properties) {
       target_type <- 'fill'

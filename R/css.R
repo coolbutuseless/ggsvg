@@ -1,84 +1,103 @@
 
 
+parse_aes_type <- function(x) {
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Extract the property name from a CSS aesthetic definition
-#'
-#' @param x CSS aesthetic string of the form: "css=[selector]:[property]"
-#'
-#' @return the property for this CSS aesthetic
-#'
-#' @importFrom utils tail
-#' @noRd
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-css_aes_property <- function(x) {
   bits <- stringr::str_split(x, "_")[[1]]
-  if (length(bits) == 1) {
-    return(character(0))
+  bits <- trimws(bits)
+
+  n <- length(bits)
+
+  selector <- NULL
+
+  is_css <- bits[[1]] == 'css'
+
+  if (n == 4) {
+    selector <- bits[[2]]
+    property <- bits[[3]]
+    format   <- bits[[4]]
+  } else if (n > 4) {
+    selector <- bits[[2]]
+    property <- paste(bits[3:(n-1)], collapse = "_")
+    format   <- bits[[n]]
+  } else if (n == 3) {
+    selector <- bits[[2]]
+    property <- bits[[3]]
+    format   <- ".x"
   }
 
-  res <- tail(bits, 1)
-  res <- trimws(res)
-  if (nchar(res) == 0) {
-    return(character(0))
+  if (is_css && n >= 3 && nchar(selector) > 0 && nchar(property) > 0 && nchar(format) > 0) {
+    res <- list(
+      type     = "css",
+      selector = selector,
+      property = property,
+      format   = format,
+      aes_name = x
+    )
+  } else if (n == 2) {
+    res <- list(
+      type     = 'bespoke',
+      property = bits[[2]],
+      aes_name = x
+    )
+  } else {
+    res <- list(type = 'unknown')
   }
 
   res
 }
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Extract the CSS selector from a CSS aesthetic definition
-#'
-#' @inheritParams css_aes_property
-#'
-#' @return the CSS selector for this CSS aesthetic
-#' @noRd
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-css_aes_selector <- function(x) {
-  pos <- tail(as.vector(stringr::str_locate_all(x, '_')[[1]]), 1)
-  res <- trimws(stringr::str_sub(x, start = 5, end = pos - 1))
+if (FALSE) {
 
-  if (length(res) == 0 || nchar(res) == 0) {
-    return(character(0))
-  }
+  x <- "css_selector_property_format"
 
-  res
+  parse_aes_type("css_selector_property_format")
+  parse_aes_type("rect_fill_three")
+  parse_aes_type("rect_fill")
+  parse_aes_type("rect")
+
+
+  is_valid_css_aes('css_hello')
+  is_valid_css_aes('css_hello_there')
+  is_valid_css_aes('css_hello_there_format')
+  is_valid_css_aes('css_hello_there_mike_format')
+  parse_aes_type('css_hello_there_mike_format')
+
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Convert a "CSS aesthetic" definition into a glue string
 #'
-#' @inheritParams css_aes_property
+#' @param x single character string representing a potentitally bespoke or
+#'        CSS aesthetic
 #'
 #' @return a glue string template for this CSS aesthetic
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 css_aes_to_glue_string <- function(x) {
 
-  prop     <- css_aes_property(x)
-  selector <- css_aes_selector(x)
+  stopifnot(is_valid_css_aes(x))
+  bits <- parse_aes_type(x)
 
-  sprintf("%s {%s : {{`%s`}} !important; }", selector, prop, x)
+  glue_format <- gsub(".x", paste0("{{`", x, "`}}"), bits$format, fixed = TRUE)
+
+  sprintf("%s {%s : %s !important; }", bits$selector, bits$property, glue_format)
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Is a string a valid CSS Aesthetic of the form "css=[selector]:[property]"
 #'
-#' @inheritParams css_aes_property
+#' @inheritParams css_aes_to_glue_string
 #'
 #' @return logical
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 is_valid_css_aes <- function(x) {
-
-  startsWith(x, "css=") &&
-    length(css_aes_selector(x)) > 0 &&
-    length(css_aes_property(x)) > 0
-
+  bits <- parse_aes_type(x)
+  bits$type == 'css'
 }
 
 
@@ -90,21 +109,29 @@ if (FALSE) {
 
   library(grid)
 
-  svg <- '
-  <svg viewBox="0 0 100 100 ">
-    <rect width="100" height="100" fill="#88ccaa" />
-    <circle cx="50" cy="50" r="40" fill="white" />
-  </svg>
-  '
+  `css_.big_stroke-width_.xpx` <- 999
+  x <- "css_.big_stroke-width_.xpx"
+  x <- css(".big", "stroke-width", format = ".xpx")
+  x
 
-  css <- '
-  circle {fill: red !important;}
-  rect {stroke: black; stroke-width: 10 !important;}
-  '
+  is_valid_css_aes(x)
+  gs <- css_aes_to_glue_string(x)
+  gs
+  glue(gs, .open = "{{", .close = "}}")
 
-
-  grid.newpage(); grid::grid.draw(svg_to_rasterGrob(svg, css = css))
-
-
-
+  parse_aes_type(x)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

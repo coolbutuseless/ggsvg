@@ -1,5 +1,12 @@
 
 
+# ggsvg 0.1.8 2022-04-23
+
+* Initial support for formatting the value for CSS aesthetics e.g. if it 
+  needs a 'px' or '%' suffix, or some other bespoke formatting.
+* Infer default values for parameterised aesthetics if they are given in the 
+  preferred format.
+
 # ggsvg 0.1.8 2022-04-22
 
 * Improved sizing of SVG in legends.  Drastically reduced the number of 

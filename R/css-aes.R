@@ -12,19 +12,27 @@
 #' @param selector CSS selector as a single character string e.g. "circle .big"
 #' @param ... single named argument of the form \code{css_property = value}.
 #'        The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}
+#' @param format a string specifying the formatting for the CSS property value.
+#'        Default: NULL is equivalent to ".x" and will insert just the bare value.
+#'        For example, if the CSS property required an explicit
+#'        "px" suffix on the value, the format would be ".xpx"
 #'
 #' @return length-1 named list where the name is the full name of this CSS
 #'         aesthetic, and the value is the unevaluated value passed in to the ...
 #'
 #' @examples
 #' \dontrun{
+#' # circle .bit { stroke = XX; }
 #' css("circle .big", stroke = as.factor(cyl))
+#'
+#' # circle .bit { stroke = XXpx; }
+#' css("circle .big", stroke = as.factor(cyl), format = ".xpx")
 #' }
 #'
 #' @import rlang
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-css <- function(selector, ...) {
+css <- function(selector, ..., format = NULL) {
   stopifnot(
     is.character(selector), length(selector) == 1, nchar(selector) > 0,
     ...length() == 1
@@ -45,7 +53,7 @@ css <- function(selector, ...) {
     property <- stringr::str_sub(property, 2, -2)
   }
 
-  aes_name <- paste0("css=", trimws(selector), "_", trimws(property))
+  aes_name <- paste0(c("css", trimws(selector), trimws(property), format), collapse = "_")
 
   if (char_only) {
     return(aes_name)

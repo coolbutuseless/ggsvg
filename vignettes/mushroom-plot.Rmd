@@ -43,9 +43,7 @@ semicircles_svg <- '
 </svg>
 '
 
-grob <- svg_to_rasterGrob(semicircles_svg)
-grid::grid.newpage()
-grid::grid.draw(grob)
+grid::grid.draw( svg_to_rasterGrob(semicircles_svg) )
 ```
 
 #### Create Parameterised SVG
@@ -68,9 +66,7 @@ bot_radius <- 30
 
 final_svg <- glue::glue(semicircles_svg, .open = "{{", .close = "}}")
 
-grob <- svg_to_rasterGrob(final_svg)
-grid::grid.newpage()
-grid::grid.draw(grob)
+grid::grid.draw( svg_to_rasterGrob(final_svg))
 ```
 
 #### Create a `ggsvg` plot mapping 2 different quantities to the size
@@ -88,9 +84,10 @@ data <- data.frame(
 ggplot(data) + 
   geom_point_svg(
     aes(x, y, top_radius = q1, bot_radius = q2), 
-    svg = semicircles_svg,
-    size = 10,
-    defaults = list(top_radius = 50, bot_radius = 50)) +
+    svg = semicircles_svg, 
+    defaults = list(top_radius = 50, bot_radius = 50),
+    size = 10
+  ) +
   scale_svg_size('top_radius', range = c(30, 50), guide = 'none') + 
   scale_svg_size('bot_radius', range = c(30, 50), guide = 'none') + 
   theme_bw() +

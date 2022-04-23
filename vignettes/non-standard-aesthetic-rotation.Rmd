@@ -115,8 +115,8 @@ ggplot(data) +
   geom_point_svg(
     aes(x, y, arrow_angle = I(value)), 
     svg = arrow_text,
-    size = 10,
-    defaults = list(arrow_angle = 0)
+    size = 10#,
+    # defaults = list(arrow_angle = 0)
   ) + 
   theme_bw() +
   theme(legend.position = 'none') + 

@@ -181,7 +181,7 @@ so we have to explicitly nominate this as a fill by using
 
 
 ```{r message = FALSE}
-ggplot(mtcars) + 
+p <- ggplot(mtcars) + 
   geom_point_svg(
     # aes(mpg, wt, size = mpg, fill = as.factor(cyl)), 
     aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))),
@@ -190,6 +190,8 @@ ggplot(mtcars) +
   ) +
   theme_bw() + 
   scale_svg_default()
+
+p
 ```
 
 
@@ -221,7 +223,7 @@ p <- ggplot(mtcars) +
     size = 8) +
   theme_bw() + 
   scale_svg_default() +
-  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width"), range = c(5, 50))
+  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width" = mpg), range = c(5, 50))
 
 p
 ```
@@ -299,21 +301,26 @@ grid::grid.draw( svg_to_rasterGrob(final_text) )
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
 ```{r}
-ggplot(mtcars) +
+options(GGSVG_DEBUG = FALSE)
+
+p <- ggplot(mtcars) +
   geom_point_svg(
     mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
     svg      = parameterised_text,
-    size     = 10,
-    defaults = list(rect_colour = 'black', circle_radius = 40)
+    size     = 10#,
+    # defaults = list(rect_colour= 'black', circle_radius = 40)
   ) +
   theme_bw() + 
   labs(title = "{ggsvg} Using SVG as points") + 
   scale_svg_default() +
   scale_svg_size_discrete(
-    aesthetics = 'radius', 
+    aesthetics = 'circle_radius',
     range = c(10, 45),
     guide = guide_legend(override.aes = list(size = 7))
-  ) 
+  ) +
+  NULL
+
+p
 ```
 
 

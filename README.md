@@ -18,8 +18,8 @@ New aesthetics may be created on-the-fly to customise the look of the
 SVG via CSS or parameterised SVG (i.e. as a `{glue}` string).
 
 Any SVG parameter/value can be linked to the ggplot aesthetic system,
-and this greatly expands the expressive capability of the plotting
-e.g. it is possible to map values to *rotation* of an element.
+and this greatly expands the expressive capability of the plotting. For
+example, it is possible to map values to *rotation* of an element.
 
 <hr />
 
@@ -33,7 +33,7 @@ e.g. it is possible to map values to *rotation* of an element.
     requires SVG text to be set (via the `svg` argument or aesthetic
     mapping)
 -   `scale_svg_default()` will assign reasonable default scales to
-    arbitrary aesthetics which stick to the preferred aesthetic naming
+    arbitrary aesthetics which adhere to the preferred aesthetic naming
     scheme i.e. `[name]_[type]`
 -   `scale_svg_*` a complete set of compatible scale functions for
     controlling the mapping of values to arbitrary named aesthetics.
@@ -44,8 +44,9 @@ e.g. it is possible to map values to *rotation* of an element.
 
 Install from [GitHub](https://github.com/coolbutuseless/ggsvg).
 
-The [rsvg](https://github.com/ropensci/rsvg) package (\>= 2.3.0) is used
-to convert SVG into an R raster object.
+The [`{rsvg}`](https://github.com/ropensci/rsvg) package is used to
+convert SVG into an R raster object. This requires at least rsvg(\>=
+2.3.0).
 
 ``` r
 # install.package('remotes')
@@ -87,10 +88,6 @@ ggsvg package.
 3.  To get a *good* plot, you’ll probably still need to add specific
     scales to carefully control the value mapping
     e.g. `scale_svg_fill_brewer(aesthetics = "rect_fill")`
-
-If you ever encounter a target type colour or numeric CSS property that
-isn’t handled automatically (such that you *have* to use a specific
-`scale_svg_*()` function), then please file an issue on Github.
 
 Note that any CSS properties that are specified as text
 (e.g. `font-family`) do not currently have any built-in scale. Instead
@@ -157,7 +154,7 @@ represents, so we have to explicitly nominate this as a fill by using
 `scale_svg_fill_discrete()`
 
 ``` r
-ggplot(mtcars) + 
+p <- ggplot(mtcars) + 
   geom_point_svg(
     # aes(mpg, wt, size = mpg, fill = as.factor(cyl)), 
     aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))),
@@ -166,6 +163,8 @@ ggplot(mtcars) +
   ) +
   theme_bw() + 
   scale_svg_default()
+
+p
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -198,7 +197,7 @@ p <- ggplot(mtcars) +
     size = 8) +
   theme_bw() + 
   scale_svg_default() +
-  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width"), range = c(5, 50))
+  scale_svg_size_continuous(aesthetics = css("rect", "stroke-width" = mpg), range = c(5, 50))
 
 p
 ```
@@ -276,24 +275,27 @@ grid::grid.draw( svg_to_rasterGrob(final_text) )
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
 ``` r
-ggplot(mtcars) +
+options(GGSVG_DEBUG = FALSE)
+
+p <- ggplot(mtcars) +
   geom_point_svg(
     mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
     svg      = parameterised_text,
-    size     = 10,
-    defaults = list(rect_colour = 'black', circle_radius = 40)
+    size     = 10#,
+    # defaults = list(rect_colour= 'black', circle_radius = 40)
   ) +
   theme_bw() + 
   labs(title = "{ggsvg} Using SVG as points") + 
   scale_svg_default() +
   scale_svg_size_discrete(
-    aesthetics = 'radius', 
+    aesthetics = 'circle_radius',
     range = c(10, 45),
     guide = guide_legend(override.aes = list(size = 7))
-  ) 
+  ) +
+  NULL
 #> Warning: Using size for a discrete variable is not advised.
 
-#> Warning: Using size for a discrete variable is not advised.
+p
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
