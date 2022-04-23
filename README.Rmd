@@ -34,44 +34,57 @@ if (FALSE) {
 [![R-CMD-check](https://github.com/coolbutuseless/ggsvg/workflows/R-CMD-check/badge.svg)](https://github.com/coolbutuseless/ggsvg/actions)
 <!-- badges: end -->
 
-`ggsvg` is an extension to ggplot to use SVG for points.
+`ggsvg` is an extension to ggplot to use SVG graphics for plotted points.
 
-The SVG may be customised to respond to aesthetics e.g. element colours can 
-changes in response to fill and/or colour scales.
+New aesthetics may be created on-the-fly to customise the look of the SVG via
+CSS or parameterised SVG (i.e. as a `{glue}` string).
 
-Note that aesthetics are not limited to colour - any other SVG parameter/value can be 
-linked to any aesthetic which makes sense e.g. an aesthetic may be used
-to control the corner radius on a rounded rectangle.
+Any SVG parameter/value can be linked to the ggplot aesthetic system, and this greatly expands
+the expressive capability of the plotting.  For example, it is possible to map values to *rotation*
+of an element.
+
+<hr />
 
 ### Note: `{ggsvg}` is currently undergoing rapid development.  Keep an eye on this README and the vignettes to see examples of current usage.
+
+<hr />
+
 
 ## What's in the box
 
 * `geom_point_svg()` is equivalent to `geom_point()` except it also requires 
   SVG text to be set (via the `svg` argument or aesthetic mapping)
+* `scale_svg_default()` will assign reasonable default scales to arbitrary aesthetics
+  which adhere to the preferred aesthetic naming scheme i.e. `[name]_[type]`
 * `scale_svg_*` a complete set of compatible scale functions for controlling the mapping
-  of values to arbitrary named aesthetics.
+  of values to arbitrary named aesthetics.  Having a good knowledge of scales
+  work in ggplot2 will be a big advantage in 
 
 ## Installation
 
 Install from [GitHub](https://github.com/coolbutuseless/ggsvg).
 
-The [rsvg](https://github.com/ropensci/rsvg) package (>= 2.3.0) is used 
-to convert SVG into an R raster object.  
+The [`{rsvg}`](https://github.com/ropensci/rsvg) package is used 
+to convert SVG into an R raster object.  This requires at least rsvg(>= 2.3.0).
 
 ``` r
 # install.package('remotes')
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
+
+
 ## Note on SVG2 CSS support in librsvg
 
-SVG2 add support for CSS styling of geometry properties e.g. styling 'rx' on 
-`rect` elements.  
+SVG2 added support for [CSS styling of geometry properties](https://svgwg.org/svg2-draft/geometry.html).
 
-`librsvg` support for SVG2 is good, but still evolving rapidly as of v2.54.0.  Install
-the latest version of librsvg (and perhaps build `{rsvg}` from source) in 
-order to get the best CSS support.
+An example of this is styling the corner radius
+(`rx`) on `rect` elements using CSS rather than directly adding an attribute to the element.
+
+`librsvg` support for SVG2 is good, but still evolving rapidly as of v2.54.0.  
+
+For the most complete CSS support fot this and other features, install
+the latest version of librsvg and perhaps build `{rsvg}` from source.
 
 
 ## Note on preferred names for non-standard aesthetics
@@ -93,10 +106,6 @@ order to trigger some automatic detection within the ggsvg package.
 3. To get a *good* plot, you'll probably still need to add specific scales to
    carefully control the value mapping e.g. `scale_svg_fill_brewer(aesthetics = "rect_fill")`
 
-
-If you ever encounter a target type colour or numeric CSS property that isn't handled automatically
-(such that you *have* to use a specific `scale_svg_*()` function), then please
-file an issue on Github.
 
 Note that any CSS properties that are specified as text (e.g. `font-family`) 
 do not currently have any built-in scale.  Instead you will have to specify

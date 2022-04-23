@@ -97,7 +97,7 @@ grid::grid.draw( svg_to_rasterGrob(final_svg) )
 ```
 
 
-#### Create a plot with rotatable SVG arrow
+#### Create a plot with rotating SVG arrow
 
 ```{r fig.width = 6, fig.height=4}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

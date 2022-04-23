@@ -11,25 +11,34 @@
 [![R-CMD-check](https://github.com/coolbutuseless/ggsvg/workflows/R-CMD-check/badge.svg)](https://github.com/coolbutuseless/ggsvg/actions)
 <!-- badges: end -->
 
-`ggsvg` is an extension to ggplot to use SVG for points.
+`ggsvg` is an extension to ggplot to use SVG graphics for plotted
+points.
 
-The SVG may be customised to respond to aesthetics e.g. element colours
-can changes in response to fill and/or colour scales.
+New aesthetics may be created on-the-fly to customise the look of the
+SVG via CSS or parameterised SVG (i.e. as a `{glue}` string).
 
-Note that aesthetics are not limited to colour - any other SVG
-parameter/value can be linked to any aesthetic which makes sense e.g. an
-aesthetic may be used to control the corner radius on a rounded
-rectangle.
+Any SVG parameter/value can be linked to the ggplot aesthetic system,
+and this greatly expands the expressive capability of the plotting
+e.g. it is possible to map values to *rotation* of an element.
+
+<hr />
 
 ### Note: `{ggsvg}` is currently undergoing rapid development. Keep an eye on this README and the vignettes to see examples of current usage.
+
+<hr />
 
 ## What’s in the box
 
 -   `geom_point_svg()` is equivalent to `geom_point()` except it also
     requires SVG text to be set (via the `svg` argument or aesthetic
     mapping)
+-   `scale_svg_default()` will assign reasonable default scales to
+    arbitrary aesthetics which stick to the preferred aesthetic naming
+    scheme i.e. `[name]_[type]`
 -   `scale_svg_*` a complete set of compatible scale functions for
     controlling the mapping of values to arbitrary named aesthetics.
+    Having a good knowledge of scales work in ggplot2 will be a big
+    advantage in
 
 ## Installation
 
@@ -45,12 +54,18 @@ remotes::install_github('coolbutuseless/ggsvg')
 
 ## Note on SVG2 CSS support in librsvg
 
-SVG2 add support for CSS styling of geometry properties e.g. styling
-‘rx’ on `rect` elements.
+SVG2 added support for [CSS styling of geometry
+properties](https://svgwg.org/svg2-draft/geometry.html).
+
+An example of this is styling the corner radius (`rx`) on `rect`
+elements using CSS rather than directly adding an attribute to the
+element.
 
 `librsvg` support for SVG2 is good, but still evolving rapidly as of
-v2.54.0. Install the latest version of librsvg (and perhaps build
-`{rsvg}` from source) in order to get the best CSS support.
+v2.54.0.
+
+For the most complete CSS support fot this and other features, install
+the latest version of librsvg and perhaps build `{rsvg}` from source.
 
 ## Note on preferred names for non-standard aesthetics
 
