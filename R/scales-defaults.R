@@ -1,7 +1,7 @@
 
 css_colour_properties <- c(
   'color', 'colour', 'stroke', 'fill', 'stop-color', 'flood-color',
-  'lighting-color'
+  'lighting-color', 'background-color'
 )
 css_numeric_properties <- c(
   'stroke-width', 'radius', 'angle', 'rotation',

@@ -203,6 +203,57 @@ p
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
+## Static CSS Aesthetics
+
+Aesthetic styling on elements may also be set to a static value.
+
+In this example the world map SVG has CSS classes corresponding to the
+countries. The `.Canada` and `.Australia` objects in the SVG have their
+fill colour set to static values which match the boxplot colours.
+
+``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# World map from: https://simplemaps.com/resources/svg-world
+# Slightly modified to have a large <rect> background element
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+map_svg <- paste(readLines("man/figures/world-bg.svg"), collapse = "\n")
+
+grid::grid.draw( svg_to_rasterGrob(map_svg) )
+```
+
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+
+``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dummy data about Canada and Austrlia
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 5
+value_df <-  data.frame(
+  country = rep(c("Canada", 'Australia'), each = N),
+  value   = c(rnorm(N, mean = 5), rnorm(N, mean= 7)),
+  fill    = rep(c('brown', 'navy'), each = N)
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Boxplot comparison with map inset
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(value_df) +
+  geom_boxplot(aes(x=country, y = value, colour=I(fill)))+
+  geom_point_svg(
+    mapping = aes(), x = 2.2, y = 8,
+    css(".Canada"   , fill = 'brown'),  
+    css(".Australia", fill = 'navy'),
+    css("rect", fill='#bbb'),        # Style the inset frame
+    css("rect", stroke = 'black'),   # Style the inset frame
+    css("rect", `stroke-width` = 5), # Style the inset frame
+    svg = map_svg,
+    size = 75
+  ) +
+  theme_bw()
+```
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+
 # Parameterising an SVG and using custom aesthetics
 
 Another way of customising SVG to is to convert the SVG text into a
@@ -269,14 +320,33 @@ final_text <- glue::glue(parameterised_text, .open = "{{", .close = "}}")
 grid::grid.draw( svg_to_rasterGrob(final_text) )
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+
+## (3) Static aesthetics parameterised SVG
+
+``` r
+# options(GGSVG_DEBUG = FALSE)
+
+ggplot(mtcars) +
+  geom_point_svg(
+    mapping  = aes(mpg, wt),
+    svg      = parameterised_text,
+    size     = 10,
+    rect_colour= 'navy',
+    circle_radius = 20
+  ) +
+  theme_bw() + 
+  labs(title = "{ggsvg} Using SVG as points") 
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
 ``` r
-options(GGSVG_DEBUG = FALSE)
+# options(GGSVG_DEBUG = FALSE)
 
-p <- ggplot(mtcars) +
+ggplot(mtcars) +
   geom_point_svg(
     mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
     svg      = parameterised_text,
@@ -293,11 +363,9 @@ p <- ggplot(mtcars) +
   ) +
   NULL
 #> Warning: Using size for a discrete variable is not advised.
-
-p
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 ## Acknowledgements
 

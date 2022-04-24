@@ -6,10 +6,10 @@
 \usage{
 geom_point_svg(
   mapping = NULL,
+  ...,
   data = NULL,
   stat = "identity",
   position = "identity",
-  ...,
   na.rm = FALSE,
   show.legend = NA,
   inherit.aes = TRUE,

@@ -109,10 +109,10 @@ draw_key_PointSVG <- function(data, params, size) {
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 geom_point_svg <- function(mapping     = NULL,
+                           ...,
                            data        = NULL,
                            stat        = "identity",
                            position    = "identity",
-                           ...,
                            na.rm       = FALSE,
                            show.legend = NA,
                            inherit.aes = TRUE,
@@ -167,6 +167,7 @@ geom_point_svg <- function(mapping     = NULL,
   )))
 
   unknown_aes <- setdiff(this_aes, known_aes)
+  unknown_aes <- setdiff(unknown_aes, "") # css() calls will be unnamed. ignore here. handle later
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # User must give a default value for all unknown aes!
@@ -178,7 +179,7 @@ geom_point_svg <- function(mapping     = NULL,
 
   colour_types <- c(
     'color', 'colour', 'stroke', 'fill', 'stop-color', 'flood-color',
-    'lighting-color'
+    'lighting-color', 'background-color'
   )
 
 
@@ -206,7 +207,6 @@ geom_point_svg <- function(mapping     = NULL,
     this_geom$default_aes[[css_name]] <-list(NULL)
   }
 
-
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Add all the default values for the aesthetics
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,6 +218,35 @@ geom_point_svg <- function(mapping     = NULL,
   }
 
 
+  params <- list(
+    na.rm = na.rm,
+    mapped_size  = 'size' %in% names(mapping)
+  )
+
+  ll <- list(...)
+  ll <- ll[names(ll) != '']
+
+  params <- c(params, ll)
+
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Static aes
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  dts <- rlang::exprs(...)
+  dts <- dts[!rlang::have_name(dts)]
+  for (i in seq_along(dts)) {
+    dt <- dts[[i]]
+    nn <- names(dt)
+    this_geom$default_aes[[nn]] <- dt[[1]]
+    if (grepl('color', nn)) {
+      nn <- gsub('color', 'colour', nn)
+      this_geom$default_aes[[nn]] <- dt[[1]]
+    }
+    params <- c(params, dt)
+  }
+
+
+  # print(names(params))
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Create the layer
@@ -230,11 +259,7 @@ geom_point_svg <- function(mapping     = NULL,
     position    = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
-    params      = list(
-      na.rm = na.rm,
-      mapped_size = 'size' %in% names(mapping),
-      ...
-    )
+    params      = params
   )
 
 

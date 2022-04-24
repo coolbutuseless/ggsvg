@@ -1,5 +1,9 @@
 
 
+# ggsvg 0.1.10 2022-04-24
+
+* CSS and bespoke aesthetics both now support static assignment (in addition to the dynamic mapping).
+
 # ggsvg 0.1.9 2022-04-23
 
 * Initial support for formatting the value for CSS aesthetics e.g. if it 
