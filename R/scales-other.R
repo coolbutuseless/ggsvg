@@ -1239,7 +1239,7 @@ scale_svg_size <- function (aesthetics,
                             breaks = waiver(),
                             labels = waiver(),
                             limits = NULL,
-                            range  = c(1, 6),
+                            range  = c(5, 10),
                             trans  = "identity",
                             guide  = "legend")
 {
@@ -1290,7 +1290,7 @@ scale_svg_size_binned <- function (aesthetics,
                                    breaks      = waiver(),
                                    labels      = waiver(),
                                    limits      = NULL,
-                                   range       = c(1, 6),
+                                   range       = c(5, 10),
                                    n.breaks    = NULL,
                                    nice.breaks = TRUE,
                                    trans       = "identity",
@@ -1345,7 +1345,7 @@ scale_svg_size_continuous <- function (aesthetics,
                                        breaks = waiver(),
                                        labels = waiver(),
                                        limits = NULL,
-                                       range  = c(1, 6),
+                                       range  = c(5, 10),
                                        trans  = "identity",
                                        guide  = "legend")
 {
@@ -1428,7 +1428,7 @@ scale_svg_size_manual <- function (aesthetics,
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 scale_svg_size_ordinal <- function (aesthetics,
                                     ...,
-                                    range = c(2, 6))
+                                    range = c(5, 10))
 {
 
   aesthetics <- prepare_aesthetics(aesthetics)

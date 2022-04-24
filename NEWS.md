@@ -1,5 +1,15 @@
 
 
+# ggsvg 0.1.11 2022-04-25
+
+* Absolute legend sizing when size is an aesthetic.  Size in legend now matches 
+  size on plots
+* Improved default SVG sizing (prior sizing was from ggplots point sizing which is
+  too small to be legible)
+* Add `hjust` and `vjust` 
+* Add absolute positioning with `x_abs` and `y_abs` which override any 
+  `x` and `y`
+
 # ggsvg 0.1.10 2022-04-24
 
 * CSS and bespoke aesthetics both now support static assignment (in addition to the dynamic mapping).

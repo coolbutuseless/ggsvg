@@ -392,7 +392,7 @@ scale_svg_size(
   breaks = waiver(),
   labels = waiver(),
   limits = NULL,
-  range = c(1, 6),
+  range = c(5, 10),
   trans = "identity",
   guide = "legend"
 )
@@ -405,7 +405,7 @@ scale_svg_size_binned(
   breaks = waiver(),
   labels = waiver(),
   limits = NULL,
-  range = c(1, 6),
+  range = c(5, 10),
   n.breaks = NULL,
   nice.breaks = TRUE,
   trans = "identity",
@@ -420,7 +420,7 @@ scale_svg_size_continuous(
   breaks = waiver(),
   labels = waiver(),
   limits = NULL,
-  range = c(1, 6),
+  range = c(5, 10),
   trans = "identity",
   guide = "legend"
 )
@@ -437,7 +437,7 @@ scale_svg_size_manual(
   na.value = NA
 )
 
-scale_svg_size_ordinal(aesthetics, ..., range = c(2, 6))
+scale_svg_size_ordinal(aesthetics, ..., range = c(5, 10))
 }
 \arguments{
 \item{aesthetics}{names of aesthethics to apply this scale to. e.g. \code{'fill_rect'}}

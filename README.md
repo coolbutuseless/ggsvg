@@ -118,7 +118,7 @@ grid::grid.draw( svg_to_rasterGrob(car_svg) )
 
 ``` r
 ggplot(mtcars) + 
-  geom_point_svg(aes(mpg, wt), svg = car_svg, size = 8) + 
+  geom_point_svg(aes(mpg, wt), svg = car_svg) + 
   theme_bw()
 ```
 
@@ -127,7 +127,7 @@ ggplot(mtcars) +
 ``` r
 ggplot(mtcars) + 
   geom_point_svg(aes(mpg, wt, size = mpg), svg = car_svg) + 
-  theme_bw()
+  theme_bw() 
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -154,16 +154,13 @@ represents, so we have to explicitly nominate this as a fill by using
 `scale_svg_fill_discrete()`
 
 ``` r
-p <- ggplot(mtcars) + 
+ggplot(mtcars) + 
   geom_point_svg(
     aes(mpg, wt, css("path:nth-child(3)", fill = as.factor(cyl))),
-    size = 8,
     svg = car_svg
   ) +
   theme_bw() + 
   scale_svg_default()
-
-p
 ```
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
@@ -192,8 +189,7 @@ p <- ggplot(mtcars) +
       css("rect", "stroke-width" = mpg), 
       css("rect", stroke = as.factor(cyl))
     ), 
-    svg = svg_text, 
-    size = 8) +
+    svg = svg_text) +
   theme_bw() + 
   scale_svg_default() +
   scale_svg_size_continuous(aesthetics = css("rect", "stroke-width" = mpg), range = c(5, 50))
@@ -240,7 +236,8 @@ value_df <-  data.frame(
 ggplot(value_df) +
   geom_boxplot(aes(x=country, y = value, colour=I(fill)))+
   geom_point_svg(
-    mapping = aes(), x = 2.2, y = 8,
+    mapping = NULL,
+    x_abs = 0.99, y_abs = 0.99, hjust = 1, vjust = 1,
     css(".Canada"   , fill = 'brown'),  
     css(".Australia", fill = 'navy'),
     css("rect", fill='#bbb'),        # Style the inset frame
@@ -249,7 +246,7 @@ ggplot(value_df) +
     svg = map_svg,
     size = 75
   ) +
-  theme_bw()
+  theme_bw() 
 ```
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
@@ -322,7 +319,7 @@ grid::grid.draw( svg_to_rasterGrob(final_text) )
 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
-## (3) Static aesthetics parameterised SVG
+## (3) Static aesthetics with parameterised SVG
 
 ``` r
 # options(GGSVG_DEBUG = FALSE)
@@ -331,7 +328,6 @@ ggplot(mtcars) +
   geom_point_svg(
     mapping  = aes(mpg, wt),
     svg      = parameterised_text,
-    size     = 10,
     rect_colour= 'navy',
     circle_radius = 20
   ) +
@@ -349,8 +345,7 @@ ggplot(mtcars) +
 ggplot(mtcars) +
   geom_point_svg(
     mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
-    svg      = parameterised_text,
-    size     = 10#,
+    svg      = parameterised_text#,
     # defaults = list(rect_colour= 'black', circle_radius = 40)
   ) +
   theme_bw() + 

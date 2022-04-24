@@ -1,5 +1,9 @@
 
 
+.pt <- 2.845276  # ggplot2::.pt
+sentinel_default_size <- 7.999
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Key SVG
 #'
@@ -60,11 +64,11 @@ draw_key_PointSVG <- function(data, params, size) {
   # Otherwise scale the SVG size by the size of the legend box it is to
   # displayed in.
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (data$size[[1]] == 0.999 || !isTRUE(params$mapped_size)) {
-    w <- h <- 0.9  # 0.9 npc
+  if (data$size[[1]] == sentinel_default_size || !isTRUE(params$mapped_size)) {
+    w <- h <- grid::unit(0.9, 'npc')
   } else {
-    w <- 0.9 * data$size[[1]] / size[[1]]
-    h <- 0.9 * data$size[[1]] / size[[1]]
+    w <- grid::unit(data$size[[1]] * .pt, 'pt')  #0.9 * data$size[[1]] / size[[1]]
+    h <- grid::unit(data$size[[1]] * .pt, 'pt')  #0.9 * data$size[[1]] / size[[1]]
   }
 
 
@@ -93,6 +97,12 @@ draw_key_PointSVG <- function(data, params, size) {
 #'       If neither value is specified (the default) then dimensions will be taken from the
 #'       SVG itself.  This value could be used to increase the resolution of the SVG so it
 #'       does not appear blurry once rendered to an element in the plot e.g. \code{svg_width = 1000}}
+#' \item{hjust,vjust}{The justification of the SVG's bounding rectangle relative to
+#'       its (x,y) position. Default value of 0.5 mean to centre the SVG at
+#'       the specified location. Standard values for these variables are in the range [0,1]}
+#' \item{x_abs,y_abs}{Absolute positioning within the panel. Default: NULL means
+#'       that the standard x,y positioning is to be used.  Standard values
+#'       for these variables are in the range [0,1]}
 #' }
 #'
 #'
@@ -125,7 +135,9 @@ geom_point_svg <- function(mapping     = NULL,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   aes_call <- rlang::enquo(mapping)
 
-  if (rlang::is_call(aes_call) && rlang::call_name(aes_call) == 'aes') {
+  if (rlang::is_call(aes_call) &&
+      !is.null(rlang::quo_get_expr(aes_call)) &&
+      rlang::call_name(aes_call) == 'aes') {
     # Put 'my_aes()' into the quosure environment
     en <- rlang::quo_get_env(aes_call)
     this_env <- new.env(parent = en)
@@ -139,7 +151,11 @@ geom_point_svg <- function(mapping     = NULL,
     mapping <- rlang::eval_tidy(aes_call)
   }
 
-
+  # Sometimes we don't have a mapping because we are using absolute positioning,
+  # so x and y can be ignored completely
+  if (is.null(mapping)) {
+    mapping <- aes(x=Inf, y=Inf)
+  }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ggsvg has to dynamically add new aesthetics to the Geom
@@ -302,13 +318,17 @@ create_new_GeomPointSVG <- function() {
     default_aes = ggplot2::aes(
       shape      = 19,
       colour     = "black",
-      size       = 0.999,  # this is a sentinel value used during draw_key
+      size       = sentinel_default_size,  # this is a sentinel value used during draw_key
       fill       = 'black',
       alpha      = 1,
       stroke     = 0.5,
       svg        = svg_text,
       svg_width  = NULL,
-      svg_height = NULL
+      svg_height = NULL,
+      hjust      = 0.5,
+      vjust      = 0.5,
+      x_abs      = NULL,
+      y_abs      = NULL,
     ),
 
     draw_panel = function(data, panel_params, coord, na.rm = FALSE, mapped_size = NULL) {
@@ -321,6 +341,12 @@ create_new_GeomPointSVG <- function() {
         message("GeomPointSVG$draw_panel() 'coords' data.frame names")
         # print(names(coords))
         print(coords)
+      }
+
+      if (FALSE) {
+        zz <- coords
+        zz$svg <- NULL
+        print(zz)
       }
 
       is_static_svg <- length(unique(coords$svg)) == 1 && !grepl("\\{\\{", coords$svg[[1]])
@@ -408,12 +434,19 @@ create_new_GeomPointSVG <- function() {
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Adjust viewport of grob so it appears in the correct location on plot
+        # Use absolute position if specified, other use the scaled x coordinate
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        x <- coords$x_abs[i] %||% coords$x[i]
+        y <- coords$y_abs[i] %||% coords$y[i]
+
+        dims <- dim(svg_grob$raster)
+
         svg_grob$vp <- grid::viewport(
-          width  = grid::unit(coords$size[[i]] * 3, 'pt'),
-          height = grid::unit(coords$size[[i]] * 3, 'pt'),
-          x      = coords$x[i],
-          y      = coords$y[i]
+          width  = grid::unit(coords$size[[i]] * .pt, 'pt'),
+          height = grid::unit(coords$size[[i]] * .pt * dims[1]/dims[2], 'pt'),
+          x      = grid::unit(x, 'npc'),
+          y      = grid::unit(y, 'npc'),
+          just   = c(coords$hjust[i], coords$vjust[i])
         )
         svg_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
         svg_grob

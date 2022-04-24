@@ -1,7 +1,7 @@
 Package: ggsvg
 Type: Package
 Title: SVG Glyphs for ggplot
-Version: 0.1.10
+Version: 0.1.11
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Authors@R: c(

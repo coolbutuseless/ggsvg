@@ -38,5 +38,11 @@ ggplot2 layer object
       If neither value is specified (the default) then dimensions will be taken from the
       SVG itself.  This value could be used to increase the resolution of the SVG so it
       does not appear blurry once rendered to an element in the plot e.g. \code{svg_width = 1000}}
+\item{hjust,vjust}{The justification of the SVG's bounding rectangle relative to
+      its (x,y) position. Default value of 0.5 mean to centre the SVG at
+      the specified location. Standard values for these variables are in the range [0,1]}
+\item{x_abs,y_abs}{Absolute positioning within the panel. Default: NULL means
+      that the standard x,y positioning is to be used.  Standard values
+      for these variables are in the range [0,1]}
 }
 }
