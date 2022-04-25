@@ -11,34 +11,33 @@
 [![R-CMD-check](https://github.com/coolbutuseless/ggsvg/workflows/R-CMD-check/badge.svg)](https://github.com/coolbutuseless/ggsvg/actions)
 <!-- badges: end -->
 
-`ggsvg` is an extension to ggplot to use SVG graphics for plotted
-points.
+`ggsvg` is an extension to ggplot to use SVG image for plotted points.
 
-New aesthetics may be created on-the-fly to customise the look of the
-SVG via CSS or parameterised SVG (i.e. as a `{glue}` string).
+The SVG may be styled by either:
 
-Any SVG parameter/value can be linked to the ggplot aesthetic system,
-and this greatly expands the expressive capability of the plotting. For
-example, it is possible to map values to *rotation* of an element.
+-   Mapping aesthetic values to CSS.
+-   Parameterising the SVG by converting it to a [`{glue}`]()-compatible
+    string.
 
 <hr />
 
-### Note: `{ggsvg}` is currently undergoing rapid development. Keep an eye on this README and the vignettes to see examples of current usage.
+### Note: `{ggsvg}` is currently undergoing rapid development.
+
+### Keep an eye on this README and the vignettes to see examples of current usage.
 
 <hr />
 
 ## What’s in the box
 
--   `geom_point_svg()` is equivalent to `geom_point()` except it also
-    requires SVG text to be set (via the `svg` argument or aesthetic
-    mapping)
+-   `geom_point_svg()` is equivalent to `geom_point()` but the glyphs
+    are defined by SVG rather than points.
 -   `scale_svg_default()` will assign reasonable default scales to
-    arbitrary aesthetics which adhere to the preferred aesthetic naming
-    scheme i.e. `[name]_[type]`
+    arbitrary aesthetics which adhere to the [preferred aesthetic naming
+    scheme](#preferred)
 -   `scale_svg_*` a complete set of compatible scale functions for
     controlling the mapping of values to arbitrary named aesthetics.
     Having a good knowledge of scales work in ggplot2 will be a big
-    advantage in
+    advantage in customing SVG appearing in plots.
 
 ## Installation
 
@@ -53,25 +52,26 @@ convert SVG into an R raster object. This requires at least rsvg(\>=
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
-## Note on SVG2 CSS support in librsvg
+## <a name="preferred"></a> Preferred naming for custom aesthetics
 
-SVG2 added support for [CSS styling of geometry
-properties](https://svgwg.org/svg2-draft/geometry.html).
+Custom aesthetics should be named with a `_[type]` suffix in order to
+keep `{ggsvg}` working well with `{ggplot2}`. E.g:
 
-An example of this is styling the corner radius (`rx`) on `rect`
-elements using CSS rather than directly adding an attribute to the
-element.
+-   Use `shade_fill` rather than `shade` or `fill_shade`
+-   Use `rect_size` rather than `size_rect` or `rect_bigness`
+-   Use `path_alpha` rather than `transparency`
 
-`librsvg` support for SVG2 is good, but still evolving rapidly as of
-v2.54.0.
+`type` can be any one of the standard ggplot aesthetics (fill, colour,
+size etc).
 
-For the most complete CSS support fot this and other features, install
-the latest version of librsvg and perhaps build `{rsvg}` from source.
+<details>
+<summary>
+Click here for more details
+</summary>
 
-## Note on preferred names for non-standard aesthetics
-
-The `ggplot2` packages knows about a certain set of aesthetics: alpha,
-colour, fill, linetype, shape, size etc. And it knows how to find
+`{ggplot2}` doesn’t know how to deal with a new aesthetic is hasn’t seen
+before. The `ggplot2` packages knows about a certain set of aesthetics:
+alpha, colour, fill, linetype, shape, size etc. And it knows how to find
 appropriate default *scales* for each of these aesthetics in order to
 convert, say, numeric values in a data.frame into colours for points.
 
@@ -94,18 +94,11 @@ Note that any CSS properties that are specified as text
 you will have to specify the possible values for such a scale using
 e.g. `scale_svg_discrete_manual()`.
 
-# Using an existing SVG
+</details>
 
-In the simplest case where the user just wants to use an SVG as a
-plotting glyph, only two changes are needed over a basic ggplot:
-
-1.  Use `geom_point_svg()`
-2.  specify the `svg =` argument
+# Simple plot
 
 ``` r
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Read SVG from the web
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 car_url <- 'https://www.svgrepo.com/download/114837/car.svg'
 car_svg <- paste(readLines(car_url), collapse = "\n")
 ```
@@ -124,6 +117,8 @@ ggplot(mtcars) +
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
+# Simple plot with mapped `size` aesthetic
+
 ``` r
 ggplot(mtcars) + 
   geom_point_svg(aes(mpg, wt, size = mpg), svg = car_svg) + 
@@ -132,26 +127,21 @@ ggplot(mtcars) +
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
-# Using “CSS Aesthetics” to style an existing SVG
+## Styling SVG with CSS Aesthetics (Example 1)
 
-New aesthetics can be used which map from ggplot values into the SVG’s
-CSS.
+The 3rd path element in the SVG is the body of the car - which
+corresponds to the CSS selector `path:nth-child(3)`.
 
-You’ll have to know some SVG and CSS to achieve this, as well as being
-comfortable with the use of ggplot2 scales.
+We use the `css()` helper function define how to map `fill` to a CSS
+element.
 
-In his particular case in the SVG for the car, the 3rd path element in
-the SVG is the body of the car. This is equivalent to a a CSS selector
-or `path:nth-child(3)`.
+The general form of the `css()` function call is:
+`css(selector, property = value)`
 
-Then we map the `fill` CSS property to `as.factor(cyl)` by writing the
-mapped aesthetic as
-`aes(..., "css=path:nth-child(3):fill" = as.factor(cyl))`.
+In this case we want to select the element at `path:nth-child(3)`, and
+set the CSS property `fill` to be mapped from `as.factor(cyl)`. I.e.
 
-Further, since this is not a standard aesthethic name, ggplot does not
-know how to translate the cylinder values into what this new aesthetic
-represents, so we have to explicitly nominate this as a fill by using
-`scale_svg_fill_discrete()`
+`css("path:nth-child(3)", fill = as.factor(cyl))`
 
 ``` r
 ggplot(mtcars) + 
@@ -165,7 +155,13 @@ ggplot(mtcars) +
 
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
-## CSS Aesthetics 2
+## Styling SVG with CSS Aesthetics (Example 2)
+
+In this example, the `stroke-width` and the `stroke` of the rectangle
+are to be mapped to some values in the data.
+
+Since `ggplot2` has never heard of these custom aesthetics, use
+`scale_svg_default()` to get good initial defaults.
 
 ``` r
 svg_text <- '
@@ -182,7 +178,26 @@ grid::grid.draw( svg_to_rasterGrob(svg_text) )
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ``` r
-p <- ggplot(mtcars) + 
+ggplot(mtcars) + 
+  geom_point_svg(
+    aes(
+      mpg, wt, 
+      css("rect", "stroke-width" = mpg), 
+      css("rect", stroke = as.factor(cyl))
+    ), 
+    svg = svg_text) +
+  theme_bw() + 
+  scale_svg_default() 
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+
+Be default, the size scaling for the `stroke-width` aesthetic isn’t
+readily apparent, so add a specific `scale_svg_*()` function to map the
+values onto thicker strokes
+
+``` r
+ggplot(mtcars) + 
   geom_point_svg(
     aes(
       mpg, wt, 
@@ -193,19 +208,15 @@ p <- ggplot(mtcars) +
   theme_bw() + 
   scale_svg_default() +
   scale_svg_size_continuous(aesthetics = css("rect", "stroke-width" = mpg), range = c(5, 50))
-
-p
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
-## Static CSS Aesthetics
+## Styling SVG with CSS Aesthetics (Example 3)
 
-Aesthetic styling on elements may also be set to a static value.
-
-In this example the world map SVG has CSS classes corresponding to the
-countries. The `.Canada` and `.Australia` objects in the SVG have their
-fill colour set to static values which match the boxplot colours.
+This world map SVG has CSS classes corresponding to the countries
+e.g. the CSS selector “.Canada” will select all elements having
+`class = "Canada"` in the SVG.
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,13 +228,13 @@ map_svg <- paste(readLines("man/figures/world-bg.svg"), collapse = "\n")
 grid::grid.draw( svg_to_rasterGrob(map_svg) )
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Dummy data about Canada and Austrlia
+# Dummy data about Canada and Australia
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N <- 5
+N <- 10
 value_df <-  data.frame(
   country = rep(c("Canada", 'Australia'), each = N),
   value   = c(rnorm(N, mean = 5), rnorm(N, mean= 7)),
@@ -232,6 +243,7 @@ value_df <-  data.frame(
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Boxplot comparison with map inset
+# Set x_abs,y_abs, hjust, vjust to put the SVG in the top-right corner
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ggplot(value_df) +
   geom_boxplot(aes(x=country, y = value, colour=I(fill)))+
@@ -240,8 +252,8 @@ ggplot(value_df) +
     x_abs = 0.99, y_abs = 0.99, hjust = 1, vjust = 1,
     css(".Canada"   , fill = 'brown'),  
     css(".Australia", fill = 'navy'),
-    css("rect", fill='#bbb'),        # Style the inset frame
-    css("rect", stroke = 'black'),   # Style the inset frame
+    css("rect", fill='white'),       # Style the inset frame
+    css("rect", stroke = '#555'),   # Style the inset frame
     css("rect", `stroke-width` = 5), # Style the inset frame
     svg = map_svg,
     size = 75
@@ -249,22 +261,14 @@ ggplot(value_df) +
   theme_bw() 
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
-# Parameterising an SVG and using custom aesthetics
+## Styling SVG by parameterising as a `{glue}` string
 
-Another way of customising SVG to is to convert the SVG text into a
-parameterised string to use with glue.
+SVG appearance may be styled by editing the SVG and inserting
+glue-compatible parameters which can then be mapped as aesthetics.
 
-The parameters in the string are then mapped to values using ggplot2 -
-again using a new aesthetic name and nominating the type of scale to use
-to map values
-
-1.  Create or edit a base SVG
-2.  Parameterise the SVG using glue placeholders for values later filled
-    by ggplot
-
-## (1) Create base SVG Image
+### (1) Create base SVG Image
 
 The following simple SVG constructed by hand is just a square and a
 circle.
@@ -289,78 +293,73 @@ grid::grid.draw( svg_to_rasterGrob(simple_text) )
 
 <img src="man/figures/README-simple_svg-1.png" width="100%" />
 
-## (2) Parameterise the SVG
+### (2) Parameterise the SVG
 
-Introduce parameters in the SVG using [glue]() syntax with double curly
-braces i.e. `{{}}`
+Introduce parameters in the SVG using
+[`{glue}`](https://cran.r-project.org/package=glue) syntax with double
+curly braces i.e. `{{}}`
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define simple SVG
 #   - Square with rounded corners and a circle inside it.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-parameterised_text <- '
+parameterised_svg <- '
   <svg viewBox="0 0 100 100 ">
-    <rect width="100" height="100" fill="{{rect_colour}}" />
-    <circle cx="50" cy="50" r="{{circle_radius}}" fill="white" />
+    <rect width="100" height="100" fill="{{rect_fill}}" />
+    <circle cx="50" cy="50" r="{{circle_size}}" fill="white" />
   </svg>
   '
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Test the glue parameters
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-rect_colour   <- 'green'
-circle_radius <- 10
+rect_fill   <- 'brown'
+circle_size <- 10
 
-final_text <- glue::glue(parameterised_text, .open = "{{", .close = "}}")
+final_text <- glue::glue(parameterised_svg, .open = "{{", .close = "}}")
 
 grid::grid.draw( svg_to_rasterGrob(final_text) )
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 ## (3) Static aesthetics with parameterised SVG
 
 ``` r
-# options(GGSVG_DEBUG = FALSE)
-
 ggplot(mtcars) +
   geom_point_svg(
-    mapping  = aes(mpg, wt),
-    svg      = parameterised_text,
-    rect_colour= 'navy',
-    circle_radius = 20
+    mapping     = aes(mpg, wt),
+    svg         = parameterised_svg,
+    rect_fill   = 'navy',
+    circle_size = 20
   ) +
   theme_bw() + 
-  labs(title = "{ggsvg} Using SVG as points") 
+  labs(title = "{ggsvg}") 
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 ## (3) Map ggplot2 aesthetics to the parameterised SVG
 
 ``` r
-# options(GGSVG_DEBUG = FALSE)
-
 ggplot(mtcars) +
   geom_point_svg(
-    mapping  = aes(mpg, wt, circle_radius=as.factor(cyl), rect_colour = disp),
-    svg      = parameterised_text#,
-    # defaults = list(rect_colour= 'black', circle_radius = 40)
+    mapping  = aes(mpg, wt, circle_size = as.factor(cyl), rect_fill = disp),
+    svg      = parameterised_svg
   ) +
   theme_bw() + 
-  labs(title = "{ggsvg} Using SVG as points") + 
+  labs(title = "{ggsvg}") + 
   scale_svg_default() +
   scale_svg_size_discrete(
-    aesthetics = 'circle_radius',
+    aesthetics = 'circle_size',
     range = c(10, 45),
     guide = guide_legend(override.aes = list(size = 7))
-  ) +
-  NULL
+  )
 #> Warning: Using size for a discrete variable is not advised.
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ## Acknowledgements
 

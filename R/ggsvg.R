@@ -1,11 +1,15 @@
 
 
 .pt <- 2.845276  # ggplot2::.pt
+
+# This will be default size value used when the user hasn't specified.
+# In `draw_key_PointSVG` if I see this value, this means I can be pretty
+# sure that the user hasn't mapped a variable to the size aesthetic
 sentinel_default_size <- 7.999
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Key SVG
+#' Key for SVG
 #'
 #' @param data,params,size key stuff
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,12 +45,6 @@ draw_key_PointSVG <- function(data, params, size) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   svg_grob <- svg_to_rasterGrob(svg, css = css)
 
-  # print("-----------------------------------------------------------------")
-  # print(size)
-  # data$svg <- NULL
-  # print(data)
-  # params$svg <- NULL
-  # print(unlist(params))
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Figure out display size in legend.
@@ -55,7 +53,7 @@ draw_key_PointSVG <- function(data, params, size) {
   # R.  So it's difficult to display them at an absolute size which makes sense.
   #
   # A bit of a heuristic to determine what size the SVG should be.
-  # If the actual size is the same as the sentinel size of 0.999, then
+  # If the actual size is the same as the sentinel size of 7.999, then
   # it means that the SVG should displayed as unscaled.
   #
   # Alternately, if the user is not doing any size mapping in 'aes',
@@ -86,7 +84,7 @@ draw_key_PointSVG <- function(data, params, size) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Draw SVG
+#' Use SVG images as glyphs for points
 #'
 #'
 #' \emph{Aesthetics}
@@ -130,8 +128,10 @@ geom_point_svg <- function(mapping     = NULL,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Resolve mapping with the internal aes() function (defined above)
-  # instead of ggplot's mapping
+  # Resolve mapping with the internal my_aes() function (defined above)
+  # instead of ggplot's mapping.
+  # This is so I can manually deal with the css() aesthetics which
+  # would otherwise not make sense to ggplot internals
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   aes_call <- rlang::enquo(mapping)
 
@@ -151,8 +151,13 @@ geom_point_svg <- function(mapping     = NULL,
     mapping <- rlang::eval_tidy(aes_call)
   }
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Sometimes we don't have a mapping because we are using absolute positioning,
-  # so x and y can be ignored completely
+  # so x and y can be ignored completely.
+  # We can't set them to 'NA' of they will be filtered out.
+  # We can't set them to '0', as then ggplot wants to include (0,0) in the plot
+  # so set them to (Inf, Inf) which doesn't affect plot size/extents
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(mapping)) {
     mapping <- aes(x=Inf, y=Inf)
   }
@@ -160,11 +165,12 @@ geom_point_svg <- function(mapping     = NULL,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # ggsvg has to dynamically add new aesthetics to the Geom
   # If I keep adding them to "GeomPointSVG" then they are attached to
-  # the ggproto object for the duration of the R session.
-  # This can lead to aesthetics handing around which are actively an issue
+  # the ggproto object in the global env for the duration of the R session.
+  # This can lead to aesthetics hanging around which are actively an issue
   # for different SVG - especially CSS Aesthetics.
   # Instead, create a new GeomPointSVG Geom for every plot, so it can
-  # be adapted and updated
+  # be adapted and updated, and have its own environment independent of
+  # other GeomPointSVG Geoms
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   this_geom <- create_new_GeomPointSVG()
 
@@ -186,8 +192,9 @@ geom_point_svg <- function(mapping     = NULL,
   unknown_aes <- setdiff(unknown_aes, "") # css() calls will be unnamed. ignore here. handle later
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # User must give a default value for all unknown aes!
-  # Throw an error if none given
+  # User can give a default value for all unknown aes!
+  # but if they used the preferred "blah_type" naming, then I can infer
+  # whether the default value should be a colour or a number.
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   unhandled_aes <- unknown_aes[!unknown_aes %in% names(defaults)]
   css_aes       <- unhandled_aes[ startsWith(unhandled_aes, "css_")]
@@ -224,7 +231,8 @@ geom_point_svg <- function(mapping     = NULL,
   }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Add all the default values for the aesthetics
+  # Add all the default values for the aesthetics as specified by the user
+  # in the 'defaults' argument
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   for (i in seq_along(defaults)) {
     aes_name    <- names(defaults)[i]
@@ -234,11 +242,17 @@ geom_point_svg <- function(mapping     = NULL,
   }
 
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # These are the named parameters
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   params <- list(
     na.rm = na.rm,
     mapped_size  = 'size' %in% names(mapping)
   )
 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # The user may also specify other 'static' aesthetics like 'size = 10'
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ll <- list(...)
   ll <- ll[names(ll) != '']
 
@@ -246,7 +260,7 @@ geom_point_svg <- function(mapping     = NULL,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Static aes
+  # Static CSS aesthetics
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   dts <- rlang::exprs(...)
   dts <- dts[!rlang::have_name(dts)]
@@ -254,6 +268,10 @@ geom_point_svg <- function(mapping     = NULL,
     dt <- dts[[i]]
     nn <- names(dt)
     this_geom$default_aes[[nn]] <- dt[[1]]
+
+    # Add both 'color' and 'colour' versions of the defaults.
+    # this was a workaround (2022-04-23) and may no longer
+    # be required.
     if (grepl('color', nn)) {
       nn <- gsub('color', 'colour', nn)
       this_geom$default_aes[[nn]] <- dt[[1]]
@@ -261,8 +279,6 @@ geom_point_svg <- function(mapping     = NULL,
     params <- c(params, dt)
   }
 
-
-  # print(names(params))
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Create the layer
@@ -283,6 +299,10 @@ geom_point_svg <- function(mapping     = NULL,
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# If the user doesn't specify an 'svg', argument to the geom,
+# then this is used as the default
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 svg_text <- '
   <svg viewBox="0 0 100 100 ">
     <circle cx="50" cy="50" r="50" stroke="{colour}" fill="{fill}" />
