@@ -68,7 +68,7 @@ The [`{rsvg}`](https://github.com/ropensci/rsvg) package is used
 to convert SVG into an R raster object.  This requires at least rsvg(>= 2.3.0).
 
 ``` r
-# install.package('remotes')
+# install.packages('remotes')
 remotes::install_github('coolbutuseless/ggsvg')
 ```
 
