@@ -135,9 +135,13 @@ In the following example, two `css()` selectors are used within the
     -   Targets `<circle>` elements with `id = "top"`
     -   Map values in `type` in data.frame to the SVG `fill` property
         for these targetted elements.
--   **`css("circle#top", fill='#aaaaaa")`**
+-   **`css("circle#bot", stroke='brown')`**
     -   Targets `<circle>` elements with `id = "bot"`
-    -   Set a constant value of `#aaaaaa` for the SVG `fill` property
+    -   Set a constant value of `brown` for the SVG `stroke` property
+        for these targetted elements.
+-   **`css("circle", 'stroke-width'=10)`**
+    -   Targets `<circle>` elements
+    -   Set a constant value of `5` for the SVG `stroke-wdith` property
         for these targetted elements.
 
 To configure how the variable is mapped to the property on the selected
@@ -151,8 +155,8 @@ target, you can either use:
 ``` r
 snowman_txt <- '
   <svg viewBox="0 0 100 100 ">
-    <circle id="top" cx="50" cy="20" r="20" fill="white" stroke="black" />
-    <circle id="bot" cx="50" cy="70" r="30" fill="white" stroke="black" />
+    <circle id="top" cx="50" cy="20" r="20" fill="brown" stroke="black" />
+    <circle id="bot" cx="50" cy="70" r="30" fill="brown" stroke="black" />
   </svg>
   '
 
@@ -160,11 +164,12 @@ snowman_txt <- '
 ggplot(test_df) + 
   geom_point_svg(
     aes(x, y, css("circle#top", fill = type)),
-    css("circle#bot", fill = '#aaaaaa'),
+    css("circle#bot", stroke = 'brown'),
+    css("circle", 'stroke-width'=10),
     svg = snowman_txt
   ) +
   theme_bw() + 
-  scale_svg_fill_brewer(css("circle#top", fill = type), palette = 'Dark2')
+  scale_svg_fill_brewer(aesthetics = css("circle#top", fill = type), palette = 'Dark2')
 ```
 
 ![](man/figures/README-unnamed-chunk-8-1.png)<!-- -->
