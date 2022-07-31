@@ -41,13 +41,6 @@ The SVG may be styled by either:
 * Mapping aesthetic values to CSS.
 * Parameterising the SVG by converting it to a [`{glue}`]()-compatible string.
 
-<hr />
-
-### Note: `{ggsvg}` is currently undergoing rapid development.  
-
-### Keep an eye on this README and the vignettes to see examples of current usage.
-
-<hr />
 
 
 ## What's in the box

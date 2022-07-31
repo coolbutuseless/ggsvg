@@ -1,4 +1,7 @@
 
+# ggsvg 0.1.12 2022-07-31
+
+* Fix issue with `css()` selectors in some `scale_svg_*()` functions
 
 # ggsvg 0.1.11 2022-04-25
 

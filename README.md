@@ -19,14 +19,6 @@ The SVG may be styled by either:
 -   Parameterising the SVG by converting it to a [`{glue}`]()-compatible
     string.
 
-<hr />
-
-### Note: `{ggsvg}` is currently undergoing rapid development.
-
-### Keep an eye on this README and the vignettes to see examples of current usage.
-
-<hr />
-
 ## What’s in the box
 
 -   `geom_point_svg()` is equivalent to `geom_point()` but the glyphs

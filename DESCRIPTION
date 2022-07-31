@@ -1,7 +1,7 @@
 Package: ggsvg
 Type: Package
 Title: SVG Glyphs for ggplot
-Version: 0.1.11
+Version: 0.1.12
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Authors@R: c(
@@ -14,7 +14,7 @@ BugReports: https://github.com/coolbutuseless/ggsvg/issues
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Imports:
     grid,
     ggplot2,

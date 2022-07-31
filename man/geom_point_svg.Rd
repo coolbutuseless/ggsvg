@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggsvg.R
 \name{geom_point_svg}
 \alias{geom_point_svg}
-\title{Draw SVG}
+\title{Use SVG images as glyphs for points}
 \usage{
 geom_point_svg(
   mapping = NULL,

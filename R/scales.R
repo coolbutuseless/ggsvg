@@ -34,6 +34,8 @@ scale_svg_colour_gradient <- function(aesthetics,
                                       space      = "Lab",
                                       na.value   = "grey50",
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics)) {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     scale_name = "gradient",
@@ -59,6 +61,8 @@ scale_svg_colour_distiller <- function (aesthetics,
                                         na.value   = "grey50",
                                         guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
     warning("Using a discrete colour palette in a continuous scale.\n  Consider using type = \"seq\" or type = \"div\" instead")
@@ -89,6 +93,8 @@ scale_svg_colour_gradient2 <- function (aesthetics,
                                         na.value   = "grey50",
                                         guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "gradient2",
@@ -114,6 +120,8 @@ scale_svg_colour_gradientn <- function (aesthetics,
                                         guide      = ggplot2::guide_colorbar(available_aes = aesthetics),
                                         colors)
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   colours <- if (missing(colours))
     colors
   else colours
@@ -145,6 +153,8 @@ scale_svg_colour_viridis_c <- function (aesthetics,
                                         na.value   = "grey50",
                                         guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "viridis_c",
@@ -172,6 +182,8 @@ scale_svg_fill_distiller <- function (aesthetics,
                                       na.value   = "grey50",
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   type <- match.arg(type, c("seq", "div", "qual"))
   if (type == "qual") {
     warning("Using a discrete colour palette in a continuous scale.\n  Consider using type = \"seq\" or type = \"div\" instead")
@@ -200,6 +212,8 @@ scale_svg_fill_gradient  <- function (aesthetics,
                                       na.value   = "grey50",
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "gradient",
@@ -224,6 +238,8 @@ scale_svg_fill_gradient2 <- function (aesthetics,
                                       na.value   = "grey50",
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "gradient2",
@@ -249,6 +265,8 @@ scale_svg_fill_gradientn <- function (aesthetics,
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics),
                                       colors)
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   colours <- if (missing(colours))
     colors
   else colours
@@ -280,6 +298,8 @@ scale_svg_fill_viridis_c <- function (aesthetics,
                                       na.value   = "grey50",
                                       guide      = ggplot2::guide_colorbar(available_aes = aesthetics))
 {
+  aesthetics <- prepare_aesthetics(aesthetics)
+
   ggplot2::continuous_scale(
     aesthetics,
     "viridis_c",
