@@ -1,0 +1,75 @@
+---
+title: "css-aesthetics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{css-aesthetics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 5
+)
+```
+
+```{r setup}
+library(ggsvg)
+library(ggplot2)
+```
+
+
+# Introduction
+
+This is more complicated example showing how `css()` aesthetic mapping may be used
+
+## Styling SVG with CSS Aesthetics (Example 3)
+
+This world map SVG has CSS classes corresponding to the countries e.g. the CSS selector
+".Canada" will select all elements having `class = "Canada"` in the SVG.
+
+
+```{r eval=TRUE, echo=TRUE, warning=FALSE, fig.height=1.5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# World map from: https://simplemaps.com/resources/svg-world
+# Slightly modified to have a large <rect> background element
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+map_svg <- paste(readLines("svg/world-bg.svg"), collapse = "\n")
+
+grid::grid.draw( svg_to_rasterGrob(map_svg) )
+```
+
+
+```{r fig.width=8}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Dummy data about Canada and Australia
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 10
+value_df <-  data.frame(
+  country = rep(c("Canada", 'Australia'), each = N),
+  value   = c(rnorm(N, mean = 5), rnorm(N, mean= 7)),
+  fill    = rep(c('brown', 'navy'), each = N)
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Boxplot comparison with map inset
+# Set x_abs,y_abs, hjust, vjust to put the SVG in the top-right corner
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(value_df) +
+  geom_boxplot(aes(x=country, y = value, colour=I(fill)))+
+  geom_point_svg(
+    mapping = NULL,
+    x_abs = 0.99, y_abs = 0.99, hjust = 1, vjust = 1,
+    css(".Canada"   , fill = 'brown'),  
+    css(".Australia", fill = 'navy'),
+    css("rect", fill='white'),       # Style the inset frame
+    css("rect", stroke = '#555'),   # Style the inset frame
+    css("rect", `stroke-width` = 5), # Style the inset frame
+    svg = map_svg,
+    size = 75
+  ) +
+  theme_bw() 
+```
+
