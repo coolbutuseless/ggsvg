@@ -2,22 +2,27 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Transform a CSS aesthetic selector into its canonical form for ggsvg
+#' Specify an aesthetic that maps to a CSS Selector and Property
 #'
-#' In general, the user will not want or need to inspect the output of this
-#' funciton.  Instead it is always used within an 'aes()' call for
-#' \code{geom_point_svg()}, or one of the scale functions in \code{ggsvg} of
-#' the form \code{scale_svg_*()}.
+#' This function should only be used with an \code{aes()} call in \code{geom_point_svg()},
+#' or as an argument to a \code{ggsvg} scale object e.g.
+#' \code{scale_svg_fill_discrete(aesthetics = css(...))}
+#'
 #'
 #' @param selector CSS selector as a single character string e.g. "circle .big"
 #' @param ... single named argument of the form \code{css_property = value}.
-#'        The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}
-#' @param format a string specifying the formatting for the CSS property value.
+#'        The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}.
+#'        e.g. \code{stroke = cyl}, \code{"stroke-width" = mpg}
+#' @param format Advanced. This is a string specifying the formatting for the CSS property value.
+#'        This is almost (but not quite) the equivalent of a formatting string
+#'        for the \code{glue} package - however, the delimiters for the string
+#'        are \code{[]} rather than \code{{}}.
+#'
 #'        Default: NULL is equivalent to "[x]" and will insert just the bare value.
 #'        For example, if the CSS property required an explicit
 #'        "px" suffix on the value, the format would be "[x]px"
 #'
-#' @return length-1 named list where the name is the full name of this CSS
+#' @return a named amed list (with length = 1) where the name is the full name of this CSS
 #'         aesthetic, and the value is the unevaluated value passed in to the ...
 #'
 #' @examples
@@ -33,26 +38,37 @@
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 css <- function(selector, ..., format = NULL) {
+
+  # Can only specify a single CSS Selector/Property/Value
+  # But I have to "..." as I have no idea on what the user wants to specify
+  # beforehand.
   stopifnot(
     is.character(selector), length(selector) == 1, nchar(selector) > 0,
     ...length() == 1
   )
 
+  # Capture the unevaluated expressions
   dt <- rlang::exprs(..., .named = FALSE)
 
+  # handle edge case
   char_only <- FALSE
   if (!rlang::is_named(dt)) {
     char_only <- TRUE
     dt <- rlang::exprs(..., .named = TRUE)
   }
 
+  # The property is the LHS of the    "property = value" arg
   property <- names(dt)
 
-  # remove quotes if present on the property name
+  # remove quotes if present on the property name.
+  # User might have quoted name for "stroke-width" which I have allowed as
+  # an alternative to the backticks e.g. `stroke-width`
   if (startsWith(property , '"') || startsWith(property, "'")) {
     property <- stringr::str_sub(property, 2, -2)
   }
 
+  # Create a full name for the aesthetic
+  # e.g.   "css_circle .big_stroke"
   aes_name <- paste0(c("css", trimws(selector), trimws(property), format), collapse = "_")
 
   if (char_only) {
@@ -69,9 +85,32 @@ css <- function(selector, ..., format = NULL) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intercept a call to aes() to reparse the css() arguments
 #'
-#' @param ... arguments as to aes()
+#' This is an internal, non-exported replacement for \code{ggplot2::aes}
 #'
-#' @return restults of aes() after css() argumnets are transformed
+#' @section Tecnnical:
+#'
+#' The \code{css()} helper makes it easier for the user to specify CSS
+#' selectors for aesthetics, but the downside is that \code{ggplot2::aes()}
+#' does not know how to deal with them.  i.e. \code{css()} calls within the
+#' \code{aes()} need to be caught and evaludated first (in order to turn them
+#' in to their canonical internal form).
+#'
+#' Within a call to \code{geom_point_svg()}, instead of calling \code{ggplot2::aes()},
+#' a bit of \code{rlang} trickery is used to call this function instead.
+#'
+#' This function
+#' \enumerate{
+#'   \item{captures the \code{css()} calls}
+#'   \item{evaluates the \code{css()} call to turn it into a vanilla aesthetic for ggplot}
+#'   \item{after tidying all the \code{css()} arguments, passes everything to
+#'         \code{ggplot2::aes()}}
+#' }
+#'
+#' @param ... arguments as to \code{ggplot2::aes()}, but can include unevaluated
+#'        \code{css()} calls.
+#'
+#' @return restults of \code{ggplot2::aes()} after \code{css()} arguments are transformed
+#'         to their canonical internal format.
 #'
 #' @noRd
 #' @import rlang
@@ -90,47 +129,10 @@ my_aes <- function(...) {
     }
   }
 
-  do.call(aes, dts)
+  do.call(ggplot2::aes, dts)
 }
 
 
-
-if (FALSE) {
-  dt <- css("circle", fill = mpg)
-  dt
-
-
-
-  dts <- my_aes(x =1 , y =2, css("circle", fill = mpg))
-  dts
-
-
-
-  geomx <- function(mapping) {
-    aes_call <- rlang::enquo(mapping)
-
-    if (rlang::is_call(aes_call) && rlang::call_name(aes_call) == 'aes') {
-      # replace the call to "aes()" with a call to "my_aes()"
-      ex <- rlang::quo_get_expr(aes_call)
-      ex[[1]] <- as.name("my_aes")
-      aes_call <- rlang::quo_set_expr(aes_call, ex)
-    }
-
-    mapping <- rlang::eval_tidy(aes_call)
-    # mapping <- aes_call
-
-    mapping
-  }
-
-
-  aes_call <- mapping <- geomx(aes(x = 1, y = 2, css("circle .big", style = mpg)))
-  mapping
-  aes_call
-
-
-
-  dummy <- function(...) {}
-}
 
 
 

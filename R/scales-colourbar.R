@@ -2,7 +2,11 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' allow for other aesthetic types as scale argumnets e.g. CSS aesthetic
+#' Allow for other aesthetic types as scale argumnets e.g. CSS aesthetic
+#'
+#' If an \code{scale_svg_*()} function is passed a \code{css()} aesthetic,
+#' need to extract just the name of that aesthetic, not the full \code{css()}
+#' object.
 #'
 #' @param aesthetics aesthetics argument as given to the scale function
 #' @noRd

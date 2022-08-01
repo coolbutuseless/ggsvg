@@ -1,4 +1,7 @@
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Included here as it is not exported from ggplot2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 binned_pal <- function (palette) {
   function(x) {
     palette(length(x))
@@ -6,6 +9,9 @@ binned_pal <- function (palette) {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Included here as it is not exported from ggplot2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ordinal_pal <- function (colours, na.color = "grey50", alpha = TRUE) {
   pal <- scales::colour_ramp(colours, na.color = na.color,
                              alpha = alpha)
@@ -14,6 +20,9 @@ ordinal_pal <- function (colours, na.color = "grey50", alpha = TRUE) {
   }
 }
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Included here as it is not exported from ggplot2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 qualitative_pal <- function (type, h, c, l, h.start, direction) {
   function(n) {
     type_list <- if (!is.list(type))
@@ -37,7 +46,9 @@ qualitative_pal <- function (type, h, c, l, h.start, direction) {
 }
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Included here as it is not exported from ggplot2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 manual_scale <- function (aesthetic, values = NULL, breaks = waiver(), ..., limits = NULL) {
   if (missing(values)) { # changed rlang::is_missing() to missing(). Mikefc 2021-12-31
     values <- NULL
@@ -67,6 +78,9 @@ manual_scale <- function (aesthetic, values = NULL, breaks = waiver(), ..., limi
                  limits = limits, ...)
 }
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Included here as it is not exported from ggplot2
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 is.waive <- function (x) {
   inherits(x, "waiver")
 }

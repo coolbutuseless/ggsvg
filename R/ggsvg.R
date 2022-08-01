@@ -4,12 +4,13 @@
 
 # This will be default size value used when the user hasn't specified.
 # In `draw_key_PointSVG` if I see this value, this means I can be pretty
-# sure that the user hasn't mapped a variable to the size aesthetic
+# sure that the user hasn't mapped a variable to the size aesthetic.
+# This is an ugly hack. Please fix.
 sentinel_default_size <- 7.999
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Key for SVG
+#' Key for SVG points
 #'
 #' @param data,params,size key stuff
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,9 +51,10 @@ draw_key_PointSVG <- function(data, params, size) {
   # Figure out display size in legend.
   #
   # This is tricky because an SVG has no natural size like points in
-  # R.  So it's difficult to display them at an absolute size which makes sense.
+  # R.  So it's difficult to display them at an absolute size which would make
+  # sense.
   #
-  # A bit of a heuristic to determine what size the SVG should be.
+  # A bit of a heuristic to determine what size the SVG should be:
   # If the actual size is the same as the sentinel size of 7.999, then
   # it means that the SVG should displayed as unscaled.
   #
@@ -89,7 +91,7 @@ draw_key_PointSVG <- function(data, params, size) {
 #'
 #' \emph{Aesthetics}
 #' \describe{
-#' \item{svg}{SVG as character string}
+#' \item{svg}{SVG as a character string}
 #' \item{svg_width,svg_height}{Specify rendered width and/or height.  If only one of these values
 #'       is specified, then the other will be scaled to keep he aspect ratio.
 #'       If neither value is specified (the default) then dimensions will be taken from the
@@ -106,7 +108,10 @@ draw_key_PointSVG <- function(data, params, size) {
 #'
 #' @param mapping,data,stat,position,...,na.rm,show.legend,inherit.aes see
 #'        documentation for \code{ggplot2::geom_point()}
-#' @param defaults named list of default values for new aesthetics
+#' @param defaults Advanced option.  A named list of default values for new aesthetics.
+#'        In general this is not necessary when using \code{css()} aesthetics, as a
+#'        default value will be determined based upon the CSS property e.g. \code{stroke}
+#'        property will have a default value of "black"
 #'
 #' Set `options(GGSVG_DEBUG = TRUE)` for some verbose debugging which will
 #' cause `{ggsvg}` to output (to the console) the final SVG for each and every element
@@ -128,8 +133,8 @@ geom_point_svg <- function(mapping     = NULL,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Resolve mapping with the internal my_aes() function (defined above)
-  # instead of ggplot's mapping.
+  # Resolve mapping with the internal my_aes() function (defined in this pkg)
+  # instead of ggplot's 'aes()' mapping.
   # This is so I can manually deal with the css() aesthetics which
   # would otherwise not make sense to ggplot internals
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -260,7 +265,8 @@ geom_point_svg <- function(mapping     = NULL,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Static CSS aesthetics
+  # Static CSS aesthetics i.e. *not* within an aes.
+  # e.g.  geom_point_svg(aes(...), css("circle .big", fill = 'green'))
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   dts <- rlang::exprs(...)
   dts <- dts[!rlang::have_name(dts)]
@@ -270,7 +276,7 @@ geom_point_svg <- function(mapping     = NULL,
     this_geom$default_aes[[nn]] <- dt[[1]]
 
     # Add both 'color' and 'colour' versions of the defaults.
-    # this was a workaround (2022-04-23) and may no longer
+    # this was a workaround (introduced 2022-04-23) and may no longer
     # be required.
     if (grepl('color', nn)) {
       nn <- gsub('color', 'colour', nn)
@@ -310,6 +316,8 @@ svg_text <- '
   '
 
 
+global <- new.env()
+global$count <- 0L
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create a fresh instance of a GeomPointSVG ggproto object
@@ -330,6 +338,10 @@ svg_text <- '
 #' @import ggplot2
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 create_new_GeomPointSVG <- function() {
+  global$count <- global$count + 1L
+
+  geom_point_idx <- global$count
+
   GeomPointSVG <- ggplot2::ggproto(
     "GeomPointSVG",
     ggplot2::GeomPoint,
@@ -391,8 +403,10 @@ create_new_GeomPointSVG <- function() {
         # if SVG changes, then need to re-parse it for every row
         if (is_static_svg && !has_css_aes) {
           # Copy the original grob and add a new suffix so that it is guaranteed
-          # that all grobs have a unique name
-          svg_grob <- add_suffix(svg_grob_orig, i)
+          # that all grobs have a unique name.
+          # Ensure that SVGs across multiple `geom_point_svg()` in the same
+          # plot are globally unique
+          svg_grob <- add_suffix(svg_grob_orig, paste(geom_point_idx, i, sep="."))
         } else {
           svg <- coords$svg[[i]]
 
@@ -486,15 +500,15 @@ create_new_GeomPointSVG <- function() {
 
 
 
-#' #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' #' GeomPointSVG
-#' #'
-#' #' @rdname ggplot2-ggproto
-#' #' @format NULL
-#' #' @usage NULL
-#' #' @export
-#' #' @import ggplot2
-#' #' @import grid
-#' #' @export
-#' #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' GeomPointSVG <- create_new_GeomPointSVG()
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #' GeomPointSVG
+# #'
+# #' @rdname ggplot2-ggproto
+# #' @format NULL
+# #' @usage NULL
+# #' @export
+# #' @import ggplot2
+# #' @import grid
+# #' @export
+# #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# GeomPointSVG <- create_new_GeomPointSVG()

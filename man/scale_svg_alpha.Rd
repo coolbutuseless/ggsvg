@@ -59,7 +59,7 @@
 \alias{scale_svg_size_identity}
 \alias{scale_svg_size_manual}
 \alias{scale_svg_size_ordinal}
-\title{Scales for working with arbitrary namedsaestheticcs}
+\title{Scales for working with arbitrary named aesthetics}
 \usage{
 scale_svg_alpha(aesthetics, ..., range = c(0.1, 1))
 
@@ -440,7 +440,8 @@ scale_svg_size_manual(
 scale_svg_size_ordinal(aesthetics, ..., range = c(5, 10))
 }
 \arguments{
-\item{aesthetics}{names of aesthethics to apply this scale to. e.g. \code{'fill_rect'}}
+\item{aesthetics}{names of aesthethics to apply this scale to. e.g.
+\code{css("circle .big", fill = mpg)}, \code{'fill_rect'}}
 
 \item{..., range, guide, values, breaks, na.value, type, palette}{See \code{ggplot2} documentation}
 
@@ -451,5 +452,6 @@ scale_svg_size_ordinal(aesthetics, ..., range = c(5, 10))
 \item{labels, limits, trans, max_size, n.breaks, nice.breaks}{See \code{ggplot2} documentation}
 }
 \description{
-Scales for working with arbitrary namedsaestheticcs
+See the corresponding \code{scale_*()} function in \code{ggplot2} for
+more information on how scales operate.
 }

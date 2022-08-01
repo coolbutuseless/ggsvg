@@ -18,7 +18,8 @@ This requires your system has a recent version of librsvg.}
 \item{...}{other arguments passed to `grid::rasterGrob()`.}
 }
 \value{
-rasterGrob object wrapping the nativeraster returned from \code{rsvg}
+\code{grid::rasterGrob()} object containing the
+        \code{nativeRaster} returned from \code{rsvg}
 }
 \description{
 Convert SVG to a \code{grid} \code{rasterGrob} object

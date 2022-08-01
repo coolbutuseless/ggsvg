@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggsvg.R
 \name{draw_key_PointSVG}
 \alias{draw_key_PointSVG}
-\title{Key for SVG}
+\title{Key for SVG points}
 \usage{
 draw_key_PointSVG(data, params, size)
 }
@@ -10,5 +10,5 @@ draw_key_PointSVG(data, params, size)
 \item{data, params, size}{key stuff}
 }
 \description{
-Key for SVG
+Key for SVG points
 }

@@ -2,20 +2,52 @@
 % Please edit documentation in R/scales-defaults.R
 \name{scale_ggsvg_default}
 \alias{scale_ggsvg_default}
-\title{Auto aesthetics for those marked with a ":"}
+\title{Automatically add a default scale for SVG CSS aesthetics}
 \usage{
 scale_ggsvg_default(p, verbose = FALSE)
 }
 \arguments{
-\item{p}{ggplot object}
+\item{p}{\code{ggplot2} object}
 
-\item{verbose}{logical.  Be verbose about what scales are being created.
-default: FALSE}
+\item{verbose}{Be verbose about what scales are being created? Logical.
+Default: FALSE}
 }
 \value{
-ggplot object with default scales added to the plot environment
-        for any aesthetic which nominates its type
+\code{ggplot2} object with default \code{scale_svg_*()} added to
+        the plot environment so that \code{ggplot2} will find these
+        scales.
 }
 \description{
-Auto aesthetics for those marked with a ":"
+Automatically add a default scale for SVG CSS aesthetics
 }
+\section{Technical Details}{
+
+
+If a scale for a particular aesthetic is not explicitly given, then
+\code{ggplot2} guesses which scales to use based upon two things:
+
+\itemize{
+  \item{The aesthetic being mapped e.g. \code{fill}}
+  \item{The type of data that is being mapped e.g. \code{continuous}, \code{discrete},
+        \code{date} etc}
+}
+
+For regular \code{ggplot2} plots, the combination of all these factors have
+scales included in the \code{ggplot2} package e.g. \code{scale_fill_continous},
+\code{scale_linetype_discrete}.
+
+However, for \code{ggsvg}, using \code{css()} aesthetics means that there
+are a very large number of aesthetics being mapped to i.e not just \code{fill}
+and \code{colour}, but also \code{stroke-width}, \code{angle} and many other
+CSS parameters.
+
+Furthermore,  CSS selectors are used to target the aesthetic, and since
+there are an infinite number of valid CSS selectors, there will be an
+infinite number of scales needed to be provided by \code{ggsvg}.
+
+Fortunately, the majority of things we want to map to in SVG are either
+colours or numbers, which means that we can create a single \code{colour} scale
+for use with \code{ggsvg} and just change its name, then add it to the plot
+environment so that \code{ggplot2} can find it when it renders the plot.
+}
+

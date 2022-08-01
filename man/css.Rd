@@ -2,7 +2,7 @@
 % Please edit documentation in R/css-aes.R
 \name{css}
 \alias{css}
-\title{Transform a CSS aesthetic selector into its canonical form for ggsvg}
+\title{Specify an aesthetic that maps to a CSS Selector and Property}
 \usage{
 css(selector, ..., format = NULL)
 }
@@ -10,22 +10,26 @@ css(selector, ..., format = NULL)
 \item{selector}{CSS selector as a single character string e.g. "circle .big"}
 
 \item{...}{single named argument of the form \code{css_property = value}.
-The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}}
+The \code{value} will remain unevaluated for passing into \code{ggplot2::aes()}.
+e.g. \code{stroke = cyl}, \code{"stroke-width" = mpg}}
 
-\item{format}{a string specifying the formatting for the CSS property value.
-Default: NULL is equivalent to "[x]" and will insert just the bare value.
-For example, if the CSS property required an explicit
-"px" suffix on the value, the format would be "[x]px"}
+\item{format}{Advanced. This is a string specifying the formatting for the CSS property value.
+       This is almost (but not quite) the equivalent of a formatting string
+       for the \code{glue} package - however, the delimiters for the string
+       are \code{[]} rather than \code{{}}.
+
+       Default: NULL is equivalent to "[x]" and will insert just the bare value.
+       For example, if the CSS property required an explicit
+       "px" suffix on the value, the format would be "[x]px"}
 }
 \value{
-length-1 named list where the name is the full name of this CSS
+a named amed list (with length = 1) where the name is the full name of this CSS
         aesthetic, and the value is the unevaluated value passed in to the ...
 }
 \description{
-In general, the user will not want or need to inspect the output of this
-funciton.  Instead it is always used within an 'aes()' call for
-\code{geom_point_svg()}, or one of the scale functions in \code{ggsvg} of
-the form \code{scale_svg_*()}.
+This function should only be used with an \code{aes()} call in \code{geom_point_svg()},
+or as an argument to a \code{ggsvg} scale object e.g.
+\code{scale_svg_fill_discrete(aesthetics = css(...))}
 }
 \examples{
 \dontrun{

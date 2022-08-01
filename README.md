@@ -18,14 +18,12 @@ CSS selectors via the `css()` helper function.
 
 -   `geom_point_svg()` for plotting points with SVG as the glyph (This
     is a direct analogue to `geom_point()`)
--   `scale_svg*()` functions for controlling the aesthetic mapping.
+-   `scale_svg_*()` functions for controlling the aesthetic mapping.
     -   `scale_svg_default()` is a sensible default for most plots.
     -   `scale_svg_*` are a shadow set of `ggplot2::scale_*()` functions
         with adaptations needed for `css()` selectors as aesthetics.
     -   E.g. `scale_svg_fill_brewer()` is a direct analogue for
         `ggplot2::scale_fill_brewer()`
--   `css(selector, property = value)` is a helper function for aesthetic
-    mapping to CSS Selector targets within SVGs
 
 ## Installation
 

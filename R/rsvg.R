@@ -9,9 +9,9 @@
 #'        This requires your system has a recent version of librsvg.
 #' @param ... other arguments passed to `grid::rasterGrob()`.
 #'
-#' @return rasterGrob object wrapping the nativeraster returned from \code{rsvg}
+#' @return \code{grid::rasterGrob()} object containing the
+#'         \code{nativeRaster} returned from \code{rsvg}
 #'
-#' @importFrom utils packageVersion
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 svg_to_rasterGrob <- function(svg_text, width=NULL, height=NULL, css=NULL, ...) {

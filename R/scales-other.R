@@ -60,9 +60,13 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Scales for working with arbitrary namedsaestheticcs
+#' Scales for working with arbitrary named aesthetics
 #'
-#' @param aesthetics names of aesthethics to apply this scale to. e.g. \code{'fill_rect'}
+#' See the corresponding \code{scale_*()} function in \code{ggplot2} for
+#' more information on how scales operate.
+#'
+#' @param aesthetics names of aesthethics to apply this scale to. e.g.
+#'        \code{css("circle .big", fill = mpg)}, \code{'fill_rect'}
 #' @param ...,range,guide,values,breaks,na.value,type,palette See \code{ggplot2} documentation
 #' @param direction,start,end,h,c,l,h.start,low,high,space See \code{ggplot2} documentation
 #' @param mid,midpoint,colours,colors,alpha,begin,option,name See \code{ggplot2} documentation

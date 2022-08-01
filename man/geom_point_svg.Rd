@@ -20,7 +20,10 @@ geom_point_svg(
 \item{mapping, data, stat, position, ..., na.rm, show.legend, inherit.aes}{see
 documentation for \code{ggplot2::geom_point()}}
 
-\item{defaults}{named list of default values for new aesthetics
+\item{defaults}{Advanced option.  A named list of default values for new aesthetics.
+       In general this is not necessary when using \code{css()} aesthetics, as a
+       default value will be determined based upon the CSS property e.g. \code{stroke}
+       property will have a default value of "black"
 
 Set `options(GGSVG_DEBUG = TRUE)` for some verbose debugging which will
 cause `{ggsvg}` to output (to the console) the final SVG for each and every element
@@ -32,7 +35,7 @@ ggplot2 layer object
 \description{
 \emph{Aesthetics}
 \describe{
-\item{svg}{SVG as character string}
+\item{svg}{SVG as a character string}
 \item{svg_width,svg_height}{Specify rendered width and/or height.  If only one of these values
       is specified, then the other will be scaled to keep he aspect ratio.
       If neither value is specified (the default) then dimensions will be taken from the
