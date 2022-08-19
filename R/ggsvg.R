@@ -482,7 +482,9 @@ create_new_GeomPointSVG <- function() {
           y      = grid::unit(y, 'npc'),
           just   = c(coords$hjust[i], coords$vjust[i])
         )
-        svg_grob$name <- strftime(Sys.time(), "%H%M%OS6") # Enforce unique name per grob.
+        # Enforce unique name per grob.
+        svg_grob$name <- paste(strftime(Sys.time(), "%H%M%OS6"), i, sep = "-")
+        message(svg_grob$name)
         svg_grob
       }
 
