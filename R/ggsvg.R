@@ -407,6 +407,7 @@ create_new_GeomPointSVG <- function() {
           # Ensure that SVGs across multiple `geom_point_svg()` in the same
           # plot are globally unique
           svg_grob <- add_suffix(svg_grob_orig, paste(geom_point_idx, i, sep="."))
+          message("grob: ", svg_grob$name)
         } else {
           svg <- coords$svg[[i]]
 
