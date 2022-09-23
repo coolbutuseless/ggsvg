@@ -136,7 +136,7 @@ grid::grid.draw( svg_to_rasterGrob(snowman_txt, width=800, height=800) )
 #### `css()` helper function
 
 Use the `css()` helper function to target aesthetics at selected elements within 
-and SVG using `css(selector, property = value)`
+an SVG using `css(selector, property = value)`
 
 E.g. 
 
