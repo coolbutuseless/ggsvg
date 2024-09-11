@@ -114,7 +114,7 @@ draw_key_PointSVG <- function(data, params, size) {
 #'        property will have a default value of "black"
 #'
 #' Set `options(GGSVG_DEBUG = TRUE)` for some verbose debugging which will
-#' cause `{ggsvg}` to output (to the console) the final SVG for each and every element
+#' cause ggsvg to output (to the console) the final SVG for each and every element
 #' in the plot.
 #'
 #'
@@ -389,7 +389,9 @@ create_new_GeomPointSVG <- function() {
 
       if (is_static_svg && !has_css_aes) {
         # Parse the SVG just once
-        svg_grob_orig <- svg_to_rasterGrob(coords$svg[[1]])
+        svg_grob_orig <- svg_to_rasterGrob(coords$svg[[1]],
+                                           width  = coords$svg_width,
+                                           height = coords$svg_height)
       }
 
 

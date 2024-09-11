@@ -4,10 +4,10 @@
 \alias{ggplot_add.ScaleSVGDefault}
 \title{S3 method}
 \usage{
-\method{ggplot_add}{ScaleSVGDefault}(object, plot, objectname)
+\method{ggplot_add}{ScaleSVGDefault}(object, plot, object_name)
 }
 \arguments{
-\item{object, plot, objectname}{see ggplot2 docs}
+\item{object, plot, object_name}{see ggplot2 docs}
 }
 \description{
 S3 method

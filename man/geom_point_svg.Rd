@@ -26,7 +26,7 @@ documentation for \code{ggplot2::geom_point()}}
        property will have a default value of "black"
 
 Set `options(GGSVG_DEBUG = TRUE)` for some verbose debugging which will
-cause `{ggsvg}` to output (to the console) the final SVG for each and every element
+cause ggsvg to output (to the console) the final SVG for each and every element
 in the plot.}
 }
 \value{

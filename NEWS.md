@@ -1,4 +1,10 @@
 
+# ggsvg 0.1.13 2024-09-11
+
+* Pass `svg_width` and `svg_height` to `svg_to_rasterGrob()` when 
+  the svg is only rendered once (i.e. `is_static_svg = TRUE`) 
+* Fixed some minor issues to satisfy current `R CMD CHECK`
+
 # ggsvg 0.1.12 2022-07-31
 
 * Fix issue with `css()` selectors in some `scale_svg_*()` functions

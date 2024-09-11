@@ -187,10 +187,10 @@ scale_svg_default <- function() {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' S3 method
-#' @param object,plot,objectname see ggplot2 docs
+#' @param object,plot,object_name see ggplot2 docs
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ggplot_add.ScaleSVGDefault <- function(object, plot, objectname) {
+ggplot_add.ScaleSVGDefault <- function(object, plot, object_name) {
   scale_ggsvg_default(plot)
 }
 

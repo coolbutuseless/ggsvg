@@ -1,12 +1,11 @@
 Package: ggsvg
 Type: Package
-Title: SVG Glyphs for ggplot
-Version: 0.1.12
-Author: mikefc
-Maintainer: mikefc <mikefc@coolbutuseless.com>
+Title: SVG Glyphs for Ggplot
+Version: 0.1.13
 Authors@R: c(
-    person("Mike", "FC", , "mikefc@coolbutuseless.com", role = c("aut", "cre"))
+    person("Mike", "Cheng", role = c("aut", "cre", 'cph'), email = "mikefc@coolbutuseless.com")
     )
+Maintainer: Mike Cheng <mikefc@coolbutuseless.com>
 Description: Use SVG graphics as glyphs when plotting points with ggplot2.
 License: MIT + file LICENSE
 URL: https://github.com/coolbutuseless/ggsvg
@@ -14,7 +13,7 @@ BugReports: https://github.com/coolbutuseless/ggsvg/issues
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.2
 Imports:
     grid,
     ggplot2,
